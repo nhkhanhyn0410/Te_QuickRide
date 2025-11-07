@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   searchResults: [],
   selectedTrip: null,
+  selectedSeats: [],
   seatMap: null,
   loading: false,
   error: null,
@@ -36,12 +37,16 @@ const tripSlice = createSlice({
     setSelectedTrip: (state, action) => {
       state.selectedTrip = action.payload;
     },
+    setSelectedSeats: (state, action) => {
+      state.selectedSeats = action.payload;
+    },
     setSeatMap: (state, action) => {
       state.seatMap = action.payload;
     },
     clearSearch: (state) => {
       state.searchResults = [];
       state.selectedTrip = null;
+      state.selectedSeats = [];
       state.seatMap = null;
     },
   },
@@ -53,6 +58,7 @@ export const {
   searchTripsSuccess,
   searchTripsFailure,
   setSelectedTrip,
+  setSelectedSeats,
   setSeatMap,
   clearSearch,
 } = tripSlice.actions;
