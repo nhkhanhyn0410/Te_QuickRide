@@ -265,8 +265,7 @@ export const cancelBooking = asyncHandler(async (req, res) => {
 
   await booking.save();
 
-  // Free up seats in trip
-  const trip = await Trip.findById(booking.tripId);
+  // Free up seats in trip (trip is already populated from line 229)
   const seatNumbers = booking.seats.map(s => s.seatNumber);
 
   seatNumbers.forEach(seatNumber => {
