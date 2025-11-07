@@ -1,29 +1,53 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Custom styles */
-@layer base {
-  body {
-    @apply font-sans antialiased;
-  }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-@layer components {
-  /* Add custom component classes here */
-  .btn-primary {
-    @apply bg-primary-500 hover:bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200;
-  }
+/* Custom component classes */
+.btn-primary {
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
 
-  .btn-secondary {
-    @apply bg-secondary-500 hover:bg-secondary-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200;
-  }
+.btn-primary:hover {
+  background-color: #2563eb;
+}
 
-  .card {
-    @apply bg-white rounded-lg shadow-md p-6;
-  }
+.btn-secondary {
+  background-color: #6b7280;
+  color: white;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
 
-  .input-field {
-    @apply border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500;
-  }
+.btn-secondary:hover {
+  background-color: #4b5563;
+}
+
+.card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+}
+
+.input-field {
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+.input-field:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #3b82f6;
 }
