@@ -47,6 +47,9 @@ const bookingSlice = createSlice({
     setMyBookings: (state, action) => {
       state.myBookings = action.payload;
     },
+    setBookingData: (state, action) => {
+      state.currentBooking = action.payload;
+    },
     clearBooking: (state) => {
       state.currentBooking = null;
       state.selectedSeats = [];
@@ -67,6 +70,7 @@ export const {
   createBookingSuccess,
   createBookingFailure,
   setMyBookings,
+  setBookingData,
   clearBooking,
 } = bookingSlice.actions;
 
