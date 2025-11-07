@@ -46,24 +46,35 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Import routes
+import authRoutes from './routes/auth.js';
+import userRoutes from './routes/users.js';
+import operatorRoutes from './routes/operators.js';
+import tripRoutes from './routes/trips.js';
+import bookingRoutes from './routes/bookings.js';
+
 // API routes
 app.get('/api', (req, res) => {
   res.status(200).json({
     message: 'Welcome to Te_QuickRide API',
     version: '1.0.0',
-    documentation: '/api/docs'
+    documentation: '/api/docs',
+    endpoints: {
+      auth: '/api/auth',
+      users: '/api/users',
+      operators: '/api/operators',
+      trips: '/api/trips',
+      bookings: '/api/bookings'
+    }
   });
 });
 
-// TODO: Import and use route modules here
-// import authRoutes from './routes/auth.js';
-// import userRoutes from './routes/users.js';
-// import tripRoutes from './routes/trips.js';
-// etc...
-
-// app.use('/api/auth', authRoutes);
-// app.use('/api/users', userRoutes);
-// app.use('/api/trips', tripRoutes);
+// Use routes
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/operators', operatorRoutes);
+app.use('/api/trips', tripRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 // 404 handler
 app.use((req, res) => {
