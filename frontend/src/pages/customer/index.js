@@ -1,0 +1,6 @@
+export { default as Home } from './Home';
+export { default as SearchResults } from './SearchResults';
+export { default as TripDetails } from './TripDetails';
+export { default as Booking } from './Booking';
+export { default as Payment } from './Payment';
+export { default as MyBookings } from './MyBookings';
