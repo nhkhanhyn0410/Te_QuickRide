@@ -52,6 +52,8 @@ import userRoutes from './routes/users.js';
 import operatorRoutes from './routes/operators.js';
 import tripRoutes from './routes/trips.js';
 import bookingRoutes from './routes/bookings.js';
+import paymentRoutes from './routes/payments.js';
+import ticketRoutes from './routes/tickets.js';
 
 // API routes
 app.get('/api', (req, res) => {
@@ -64,7 +66,9 @@ app.get('/api', (req, res) => {
       users: '/api/users',
       operators: '/api/operators',
       trips: '/api/trips',
-      bookings: '/api/bookings'
+      bookings: '/api/bookings',
+      payments: '/api/payments',
+      tickets: '/api/tickets'
     }
   });
 });
@@ -75,6 +79,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/operators', operatorRoutes);
 app.use('/api/trips', tripRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/tickets', ticketRoutes);
 
 // 404 handler
 app.use((req, res) => {

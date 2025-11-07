@@ -5,6 +5,7 @@ import Bus from './Bus.js';
 import Trip from './Trip.js';
 import Booking from './Booking.js';
 import Payment from './Payment.js';
+import Ticket from './Ticket.js';
 
 export {
   User,
@@ -13,5 +14,6 @@ export {
   Bus,
   Trip,
   Booking,
-  Payment
+  Payment,
+  Ticket
 };
