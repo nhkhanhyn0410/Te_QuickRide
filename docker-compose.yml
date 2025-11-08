@@ -50,26 +50,26 @@ services:
       JWT_EXPIRES_IN: 7d
       JWT_REFRESH_SECRET: dev-refresh-secret-key-change-in-production
       JWT_REFRESH_EXPIRES_IN: 30d
-      FRONTEND_URL: http://localhost:3000
-      CORS_ORIGIN: http://localhost:3000
+      FRONTEND_URL: http://localhost:5173
+      CORS_ORIGIN: http://localhost:5173
       SESSION_SECRET: dev-session-secret-key
       LOG_LEVEL: debug
       # Demo Payment Gateway Settings
       VNPAY_TMN_CODE: demo-vnpay-code
       VNPAY_HASH_SECRET: demo-vnpay-secret
       VNPAY_URL: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-      VNPAY_RETURN_URL: http://localhost:3000/payment/vnpay/return
+      VNPAY_RETURN_URL: http://localhost:5173/payment/vnpay/return
       MOMO_PARTNER_CODE: demo-momo-partner
       MOMO_ACCESS_KEY: demo-momo-access
       MOMO_SECRET_KEY: demo-momo-secret
       MOMO_ENDPOINT: https://test-payment.momo.vn
-      MOMO_RETURN_URL: http://localhost:3000/payment/momo/return
+      MOMO_RETURN_URL: http://localhost:5173/payment/momo/return
       MOMO_NOTIFY_URL: http://localhost:5000/api/payments/momo/callback
       ZALOPAY_APP_ID: demo-zalopay-app
       ZALOPAY_KEY1: demo-zalopay-key1
       ZALOPAY_KEY2: demo-zalopay-key2
       ZALOPAY_ENDPOINT: https://sb-openapi.zalopay.vn/v2/create
-      ZALOPAY_RETURN_URL: http://localhost:3000/payment/zalopay/return
+      ZALOPAY_RETURN_URL: http://localhost:5173/payment/zalopay/return
       ZALOPAY_CALLBACK_URL: http://localhost:5000/api/payments/zalopay/callback
     depends_on:
       - mongodb
@@ -88,7 +88,7 @@ services:
     container_name: te-quickride-frontend
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "5173:5173"
     environment:
       VITE_API_URL: http://localhost:5000/api
     volumes:
