@@ -1,0 +1,585 @@
+﻿TÀI LIỆU PHÂN TÍCH YÊU CẦU HỆ THỐNG
+ỨNG DỤNG WEB ĐẶT VÉ XE KHÁCH TRỰC TUYẾN
+MỤC LỤC
+1. Khảo sát Nghiệp vụ
+2. Mô tả Bài toán
+3. Xác định Yêu cầu
+4. Xác định Tác nhân và Use Case
+5. Đặc tả Use Case Chi tiết
+1. KHẢO SÁT NGHIỆP VỤ
+1.1 Quy trình hiện tại (AS-IS)
+Quy trình đặt vé truyền thống:
+Khách hàng → Đến bến xe/Quầy vé → Hỏi tuyến & giờ → Nhân viên check ghế trống
+                                                           ↓
+Nhận vé giấy ← Trả tiền mặt ← Nhân viên ghi sổ/Excel ← Chọn ghế
+
+
+Thời gian: 15-30 phút/lần
+Điểm yếu:
+*  Phải đến trực tiếp bến xe
+*  Không biết trước ghế còn trống
+*  Dễ nhầm lẫn, vé trùng
+*  Khó quản lý, đối soát
+*  Không có thông tin khách hàng
+*  Vé giấy dễ làm giả, mất mát
+Quy trình quản lý của nhà xe:
+Nhập lịch trình → Sổ/Excel → Bán vé → Ghi chép thủ công → Đối soát cuối ngày
+
+
+Vấn đề:
+*  Nhiều sai sót do thủ công
+*  Khó theo dõi doanh thu real-time
+*  Không có dữ liệu phân tích
+*  Tốn nhân sự tại quầy
+*  Khó mở rộng kênh bán
+1.2 Quy trình đề xuất (TO-BE)
+Quy trình đặt vé online:
+Khách hàng → Web Browser → Tìm kiếm tuyến → Chọn chuyến → Chọn ghế
+                                                         ↓
+Email/SMS ← Vé điện tử (QR) ← Thanh toán online ← Điền thông tin
+
+
+Thời gian: 3-5 phút
+Ưu điểm:
+*  Đặt vé mọi lúc, mọi nơi (24/7)
+*  Xem real-time ghế còn trống
+*  So sánh nhiều nhà xe, tìm kiếm nhiều tiện ích
+*  Thanh toán đa dạng, an toàn
+*  Vé điện tử với mã QR chống giả
+*  Lưu lịch sử đặt vé
+*  Thông báo tự động
+Quy trình quản lý của nhà xe:
+Web Admin nhà xe → Tạo lịch trình → Hệ thống tự động → Dashboard real-time
+                                                                                          ↓
+                                                                         Khách đặt vé online
+                                                                                           ↓
+                                                                         Báo cáo tự động
+
+
+Lợi ích:
+*  Tự động hóa hoàn toàn
+*  Báo cáo real-time
+*  Giảm nhân sự quầy vé
+*  Tăng doanh thu
+*  Dữ liệu khách hàng đầy đủ
+*  Phân tích và tối ưu
+1.3 Phân tích stakeholder
+Bên liên quan chính:
+Stakeholder
+	Vai trò
+	Nhu cầu
+	Khách hàng
+	Người mua vé
+	Đặt vé nhanh, tiện, giá tốt
+	Nhà xe
+	Nhà cung cấp
+	Tăng doanh thu, giảm chi phí
+	Admin
+	Quản trị hệ thống
+	Quản lý hiệu quả, giám sát
+	Tài xế/Soát vé
+	Kiểm tra vé
+	Quét vé nhanh, chính xác
+	Cơ hội:
+*  UX/UI ngày càng hiện đại hơn
+*  Công nghệ tốt hơn
+*  Hỗ trợ tốt hơn
+________________
+
+
+2. MÔ TẢ BÀI TOÁN
+2.1 Tổng quan
+Hệ thống Đặt vé Xe khách Trực tuyến là một ứng dụng web cho phép khách hàng tìm kiếm, đặt vé, thanh toán và quản lý chuyến đi xe khách một cách dễ dàng và thuận tiện. Hệ thống kết nối khách hàng với các nhà xe, tạo nên một nền tảng minh bạch cho ngành vận tải hành khách đường bộ.
+2.2 Mục tiêu
+Mục tiêu chính:
+1. Số hóa quy trình đặt vé: Chuyển từ đặt vé thủ công sang online hoàn toàn
+2. Tăng trải nghiệm khách hàng: Đặt vé nhanh (< 5 phút), tiện lợi, minh bạch
+3. Tăng hiệu quả cho nhà xe: Giảm chi phí vận hành, tăng doanh thu
+4. Xây dựng nền tảng tin cậy: An toàn, bảo mật, ổn định với uptime
+2.3 Phạm vi hệ thống
+Trong phạm vi:
+Module chính:
+1.  Website responsive (desktop & mobile browser)
+2.  Tìm kiếm và đặt vé (search, select, book)
+3.  Thanh toán online (MoMo, VNPay, ZaloPay, ATM, Visa/Master)
+4.  Quản lý vé điện tử với mã QR
+5.  Web admin cho nhà xe (quản lý tuyến, xe, lịch trình, giá)
+6.  Web admin hệ thống (quản lý tổng thể)
+7.  Web soát vé (quét QR code để kiểm tra vé)
+8.  Thông báo (email, SMS)
+9.  Đánh giá và review
+10.  Báo cáo và thống kê
+Tính năng bổ sung:
+* Hủy/đổi vé online
+* Chương trình khách hàng thân thiết
+* Voucher và khuyến mãi
+* Lịch sử đặt vé
+* Hỗ trợ khách hàng (chat, hotline)
+Ngoài phạm vi:
+*  Mobile app native (iOS/Android)
+*  Hệ thống GPS tracking phần cứng
+*  Quản lý bảo trì xe
+*  Hệ thống kế toán chi tiết
+*  Booking khách sạn, tour
+2.4 Chức năng chính
+A. Cho Khách hàng:
+1. Tìm kiếm chuyến xe theo tuyến, ngày giờ
+2. Xem thông tin chi tiết: giá, xe, tiện ích, đánh giá
+3. Chọn ghế ngồi trên sơ đồ ghế real-time
+4. Điền thông tin hành khách
+5. Thanh toán online nhiều phương thức
+6. Nhận vé điện tử có mã QR qua email/SMS
+7. Quản lý vé đã đặt (xem, tải, hủy, đổi)
+8. Đánh giá chuyến đi
+9. Tích lũy điểm thưởng
+B. Cho Nhà xe:
+1. Đăng ký và xác thực tài khoản
+2. Quản lý thông tin nhà xe
+3. Quản lý xe và sơ đồ ghế
+4. Tạo và quản lý tuyến đường
+5. Tạo lịch trình chuyến xe
+6. Thiết lập giá vé và khuyến mãi
+7. Xem danh sách booking real-time
+8. Báo cáo doanh thu chi tiết
+9. Quản lý nhân viên và tài xế
+10. Trả lời đánh giá từ khách hàng
+C. Cho Tài xế/Soát vé:
+1. Đăng nhập vào web quản lý chuyến
+2. Xem danh sách hành khách của chuyến
+3. Quét mã QR để xác thực vé
+4. Đánh dấu hành khách đã lên xe
+5. Báo cáo tình trạng chuyến xe
+D. Cho Admin hệ thống:
+1. Quản lý người dùng (khách hàng, nhà xe)
+2. Duyệt đăng ký nhà xe mới
+3. Quản lý nội dung (banner, blog, FAQ)
+4. Xử lý khiếu nại và hỗ trợ
+5. Xem báo cáo tổng hợp
+6. Cấu hình hệ thống
+7. Quản lý voucher hệ thống
+2.5 Công nghệ
+Nền tảng: Web Application
+Frontend:
+* Framework: React 18
+* UI Library: Tailwind CSS + Ant Design/Material-UI
+* State Management: Redux/Zustand hoặc Pinia
+* Build: Vite
+Backend:
+* Language: Node.js (Express)
+* Database: MongoDb
+* Cache: Redis 6
+* Queue: Redis Queue
+Infrastructure:
+* Cloud: AWS/Azure/GCP
+* Container: Docker
+* Web Server: Nginx
+* CDN: CloudFlare
+Third-party:
+* Payment: VNPay, MoMo, ZaloPay APIs
+* SMS: VNPT SMS, Viettel SMS
+* Email: SendGrid, AWS SES
+* Maps: Google Maps API (nếu cần tracking)
+________________
+
+
+3. XÁC ĐỊNH YÊU CẦU
+3.1 Yêu cầu chức năng (Functional Requirements)
+FR-1: Quản lý Người dùng
+FR-1.1: Đăng ký tài khoản
+* Người dùng có thể đăng ký bằng email hoặc số điện thoại
+* Yêu cầu xác thực qua email, SMS OTP
+* Mật khẩu phải đủ mạnh (tối thiểu 8 ký tự)
+FR-1.2: Đăng nhập
+* Đăng nhập bằng email/SĐT + mật khẩu
+* Hỗ trợ đăng nhập Google, Facebook OAuth
+* Ghi nhớ đăng nhập (Remember me)
+FR-1.3: Quản lý hồ sơ
+* Xem và chỉnh sửa thông tin cá nhân
+* Đổi mật khẩu
+* Lưu danh sách hành khách thường đi
+FR-2: Tìm kiếm và Đặt vé
+FR-2.1: Tìm kiếm chuyến xe
+* Input: Điểm đi, điểm đến, ngày khởi hành
+* Hiển thị danh sách chuyến xe với: nhà xe, giờ giữa 2 điểm di chuyển, giá, số ghế trống, đánh giá, các tiện ích hiện có(dưới dạng icon)
+* Lọc theo: giá, giờ, nhà xe, loại xe
+* Sắp xếp theo: giá, giờ, đánh giá
+FR-2.2: Xem chi tiết chuyến
+* Thông tin nhà xe (tên, logo, rating)
+* Thông tin xe (loại xe, tiện ích)
+* Lịch trình chi tiết (giờ đi, giờ đến, điểm dừng)
+* Chính sách hủy/đổi vé
+* Đánh giá từ khách hàng
+FR-2.3: Chọn ghế
+* Hiển thị sơ đồ ghế theo layout của xe
+* Phân biệt: ghế trống (xám), đang chọn (vàng), đã đặt (xanh)
+* Lock ghế tạm thời 15 phút khi khách đang đặt
+* Cho phép chọn nhiều ghế cùng lúc
+FR-2.4: Nhập thông tin
+* Thông tin hành khách cho từng ghế: Họ tên, SĐT, CMND
+* Chọn điểm đón và điểm trả chi tiết (nằm trong vùng điểm đi và điểm đến) 
+* Email nhận vé
+* Ghi chú
+FR-2.5: Áp dụng voucher
+* Nhập mã voucher/giảm giá
+* Validate và áp dụng tự động
+* Hiển thị số tiền được giảm
+FR-3: Thanh toán
+FR-3.1: Chọn phương thức thanh toán
+* Ví điện tử: MoMo, ZaloPay, VNPay, ShopeePay
+* Thẻ ATM nội địa
+* Thẻ Visa/Mastercard/JCB
+* Chuyển khoản ngân hàng
+* Thanh toán khi lên xe (COD)
+FR-3.2: Xử lý thanh toán
+* Tích hợp với payment gateway
+* Xác nhận thanh toán thành công/thất bại
+* Tự động hoàn tiền nếu lỗi
+* Lưu lịch sử giao dịch
+FR-3.3: Hóa đơn điện tử
+* Tạo hóa đơn tự động sau thanh toán
+* Gửi hóa đơn qua email
+* Cho phép tải hóa đơn (PDF)
+FR-4: Quản lý Vé
+FR-4.1: Tạo vé điện tử
+* Thông tin đầy đủ: mã vé, chuyến xe, ghế, hành khách, giá
+* Mã QR chứa thông tin mã hóa
+* Format PDF có thể in
+* Gửi qua email
+FR-4.2: Quản lý vé đã đặt
+* Xem danh sách vé (sắp tới, đã đi, đã hủy)
+* Xem chi tiết từng vé
+* Tải lại vé khi cần
+* Tìm kiếm vé theo mã, ngày, tuyến
+FR-4.3: Hủy vé
+* Kiểm tra chính sách hủy vé
+* Xác nhận hủy vé
+* Hoàn tiền tự động
+* Gửi email xác nhận
+FR-4.4: Đổi vé
+* Tìm chuyến mới
+* Tính chênh lệch giá + phí đổi
+* Thanh toán/hoàn tiền chênh lệch
+* Tạo vé mới, hủy vé cũ
+FR-5: Xác nhận Vé (Web Quản lý chuyến xe)
+FR-5.1: Đăng nhập dành cho người quản lý chuyến xe
+* Đăng nhập bằng mã số nhân viên và mật khẩu
+* Xác nhận quyền được phân (tài xế chỉ được xem chuyến phân công còn người quản lý được chỉnh sửa và soát vé)
+* Hiển thị chuyến xe được phân công
+* Hiển thị thông tin chuyến xe: số hành khách, giờ, điểm đi điểm đến
+* Cập nhật trạng thái chuyến xe: chưa bắt đầu, diễn ra, hoàn thành
+FR-5.2: Xác thực vé
+* Mở camera hoặc upload ảnh QR
+* Tự động giải mã và xác thực
+* Kiểm tra vé hợp lệ, đúng chuyến, chưa sử dụng, đã hủy, không hợp lệ
+* Hiển thị thông tin: hành khách, ghế, điểm đón/trả
+* Cảnh báo rõ ràng nếu vé không hợp lệ
+FR-5.3: Đánh dấu đã sử dụng
+* Xác nhận hành khách lên xe
+* Đánh dấu vé đã sử dụng (không thể quét lại)
+* Cập nhật danh sách hành khách
+FR-5.4: Danh sách hành khách
+* Xem tất cả hành khách của chuyến
+* Phân biệt: đã lên xe / chưa lên xe
+* Tìm kiếm theo tên, ghế
+* Thống kê: đã lên/tổng số
+FR-6: Đánh giá và Review
+FR-6.1: Đánh giá chuyến đi
+* Đánh giá sau khi hoàn thành chuyến (1-5 sao)
+* Đánh giá chi tiết: xe, tài xế và phụ xe, đúng giờ, dịch vụ
+* Viết nhận xét (tùy chọn)
+FR-6.2: Xem đánh giá
+* Điểm trung bình của nhà xe
+* Tổng số đánh giá
+* Phân bố số sao
+* Danh sách đánh giá (phân trang)
+* Lọc và sắp xếp đánh giá
+FR-7: Quản trị Nhà xe
+FR-7.1: Dashboard
+* Tổng quan: doanh thu, số vé, tỷ lệ lấp đầy
+* Biểu đồ doanh thu theo thời gian
+* Chuyến xe sắp khởi hành
+* Thông báo quan trọng
+FR-7.2: Quản lý tuyến đường
+* Thêm/sửa/xóa tuyến
+* Thiết lập điểm đi, đến, điểm dừng
+* Khoảng cách và thời gian dự kiến
+FR-7.3: Quản lý xe
+* Thêm/sửa/xóa xe
+* Thông tin xe: biển số, loại xe, số chỗ
+* Thiết lập sơ đồ ghế
+* Tiện ích xe
+* Trạng thái (hoạt động/bảo trì)
+FR-7.4: Quản lý lịch trình
+* Tạo chuyến xe (tuyến, xe, tài xế, người quản lý, giờ khởi hành)
+* Thiết lập giá vé
+* Sao chép lịch trình định kỳ
+* Hủy/sửa chuyến xe
+FR-7.5: Quản lý nhân viên
+* Thêm nhân viên: Nhập thông tin cá nhân.
+* Chỉnh sửa nhân viên
+* Tìm kiếm và lọc: Tìm kiếm nhân viên theo tên, vai trò, mã nhân viên hoặc trạng thái.
+* Phân quyền: Thiết lập quyền làm việc cho tài xế và người quản lý chuyến
+* Theo dõi tình trạng làm việc: Hiển thị danh sách nhân viên đang hoạt động, tạm nghỉ, hoặc đã nghỉ việc.
+* Liên kết với lịch trình: Cho phép xem lịch trình làm việc của từng tài xế hoặc phụ xe đã được phân công
+FR-7.6: Quản lý giá và khuyến mãi
+* Thiết lập bảng giá linh hoạt
+* Tạo mã giảm giá (voucher)
+* Thiết lập điều kiện áp dụng
+* Thời gian hiệu lực
+FR-7.6: Báo cáo
+* Báo cáo doanh thu (ngày/tuần/tháng)
+* Báo cáo tỷ lệ lấp đầy
+* Báo cáo vé hủy
+* Top tuyến đường
+* Export Excel/PDF
+FR-8: Quản trị Hệ thống
+FR-8.1: Quản lý người dùng
+* Xem danh sách tất cả users
+* Tìm kiếm, lọc users
+* Khóa/mở khóa tài khoản
+* Reset mật khẩu
+FR-8.2: Quản lý nhà xe
+* Duyệt đăng ký nhà xe mới
+* Xác thực giấy tờ
+* Phê duyệt/từ chối
+* Tạm ngưng/khôi phục nhà xe
+FR-8.3: Quản lý nội dung
+* Upload và quản lý banner
+* Thêm/sửa/xóa bài viết blog
+* Quản lý FAQ
+* SEO settings
+FR-8.4: Xử lý khiếu nại
+* Xem danh sách tickets
+* Phân loại và ưu tiên
+* Assign cho nhân viên
+* Theo dõi và giải quyết
+* Đóng ticket
+FR-8.5: Báo cáo tổng hợp
+* Dashboard tổng quan hệ thống
+* Doanh thu toàn hệ thống
+* Số lượng users, nhà xe, bookings
+* Growth metrics
+* Top performing routes/operators
+FR-9: Thông báo
+FR-9.1: Email notifications
+* Xác nhận đặt vé thành công
+* Vé điện tử đính kèm
+* Nhắc nhở trước giờ xuất bến
+* Thông báo thay đổi lịch trình
+* Khuyến mãi
+FR-9.2: SMS notifications
+* Mã OTP xác thực
+* Link tải vé
+* Nhắc nhở quan trọng
+* Mã booking
+FR-10: Hỗ trợ và Tìm kiếm
+FR-10.1: FAQ
+* Danh sách câu hỏi thường gặp
+* Phân danh mục
+* Tìm kiếm trong FAQ
+FR-10.2: Contact support
+* Form liên hệ
+* Chat online (nếu có)
+* Hotline hiển thị rõ
+* Email support
+3.2 Yêu cầu phi chức năng (Non-Functional Requirements)
+NFR-1: Hiệu năng (Performance)
+NFR-1.1: Thời gian tải trang chủ ≤ 2 giây
+NFR-1.2: Thời gian tìm kiếm chuyến xe ≤ 3 giây
+NFR-1.3: Xử lý thanh toán ≤ 5 giây
+NFR-1.4: Hỗ trợ tối thiểu 5,000 người dùng đồng thời
+NFR-2: Tính khả dụng (Availability)
+NFR-2.1: Uptime tối thiểu 99.9% (downtime ≤ 43 phút/tháng)
+NFR-2.2: Hệ thống hoạt động 24/7/365
+NFR-2.3: Recovery Time Objective (RTO) ≤ 1 giờ
+NFR-2.4: Backup tự động hàng ngày
+NFR-3: Bảo mật (Security)
+NFR-3.1: Mã hóa mật khẩu bằng bcrypt (cost factor ≥ 12)
+NFR-3.2: HTTPS/TLS 1.3 cho mọi kết nối
+NFR-3.3: Tuân thủ PCI-DSS cho thanh toán
+NFR-3.4: Không lưu trữ thông tin thẻ tín dụng
+NFR-3.5: Session timeout sau 30 phút không hoạt động
+NFR-3.6: Rate limiting: 100 requests/phút/IP
+NFR-4: Khả năng sử dụng (Usability)
+NFR-4.1: Quy trình đặt vé hoàn thành trong ≤ 5 phút
+NFR-4.2: Không quá 5 bước để hoàn thành đặt vé
+NFR-4.3: Giao diện responsive (desktop, tablet, mobile)
+NFR-4.4: Hỗ trợ trình duyệt: Chrome, Firefox, Safari, Edg
+NFR-4.5: Font size tối thiểu 14px trên mobile
+NFR-5: Khả năng bảo trì (Maintainability)
+NFR-5.1: Code coverage ≥ 70%
+NFR-5.2: Code tuân thủ coding standards
+NFR-5.3: Tài liệu API đầy đủ
+NFR-5.4: Logging đầy đủ cho debug
+NFR-6: Tương thích (Compatibility)
+NFR-6.1: Responsive design cho màn hình từ 320px đến 4K
+NFR-6.2: Progressive Web App capabilities
+NFR-6.3: Tương thích với các payment gateway APIs
+NFR-7: Tuân thủ (Compliance)
+NFR-7.1: Tuân thủ Luật Thương mại điện tử Việt Nam
+NFR-7.2: Tuân thủ Luật Bảo vệ dữ liệu cá nhân
+NFR-7.3: Tích hợp hóa đơn điện tử hợp pháp
+NFR-7.4: Chính sách bảo mật và điều khoản sử dụng rõ ràng
+3.3 Ràng buộc kỹ thuật
+Ngôn ngữ: Vietnamese và English
+Múi giờ: GMT+7 (Vietnam)
+Tiền tệ: VND (Vietnam Dong)
+Payment: Tích hợp ít nhất 3 phương thức thanh toán
+SMS:
+Email: Sử dụng dịch vụ email transactional
+Hosting: Cloud-based (AWS/Azure/GCP)
+Database: Relational database (Mongodb)
+4. XÁC ĐỊNH TÁC NHÂN VÀ USE CASE
+4.1 Xác định Tác nhân (Actors)
+* 4.1.1 Cấu trúc kế thừa tác nhân
+*   * 4.1.2 Tác nhân cơ sở (Abstract Base Actor)
+Người dùng (User) – Tác nhân trừu tượng
+Mô tả:
+Đại diện cho bất kỳ cá nhân nào sử dụng hệ thống để thực hiện thao tác đặt vé xe khách trực tuyến.
+Chức năng chung:
+   * Tìm kiếm chuyến xe
+   * Xem thông tin chi tiết chuyến đi
+   * Đặt vé và chọn ghế ngồi
+   * Thanh toán trực tuyến
+   * Nhận vé điện tử có mã QR
+   * Quản lý vé đã đặt
+   * Thực hiện hủy hoặc đổi vé
+Đặc điểm:
+   * Truy cập hệ thống thông qua trình duyệt web
+   * Nhận thông báo qua Email hoặc SMS
+   * Có thể đặt tối đa 6 ghế mỗi lần
+   * 4.1.3 Tác nhân chuyên biệt (Specialized Actors)
+1. Khách hàng (Customer) – Kế thừa từ User
+Mô tả:
+Người dùng đã đăng ký tài khoản và có thể đăng nhập để sử dụng đầy đủ các chức năng của hệ thống.
+Kế thừa từ User:
+Tất cả các chức năng cơ bản.
+Chức năng mở rộng:
+   * Đăng ký và đăng nhập tài khoản
+   * Quản lý vé thông qua bảng điều khiển (Dashboard) cá nhân
+   * Tích lũy điểm thưởng sau mỗi chuyến đi
+   * Lưu danh sách hành khách thường đi (tối đa 5 người)
+   * Đánh giá và nhận xét chuyến đi
+   * Sử dụng voucher hoặc mã giảm giá thành viên
+   * Theo dõi lịch sử điểm thưởng
+Phương thức xác thực: Email và Mật khẩu
+Lợi ích:
+   * Không cần xác thực OTP cho mỗi lần đặt vé
+   * Được tích điểm và đổi quà
+   * Hưởng ưu đãi từ các voucher độc quyền
+   * Ưu tiên trong quá trình hỗ trợ khách hàng
+2. Khách vãng lai (Guest) – Kế thừa từ User
+Mô tả:
+Người dùng chưa đăng ký tài khoản, chỉ sử dụng hệ thống để đặt vé nhanh mà không cần đăng nhập.
+Kế thừa từ User:
+Tất cả các chức năng cơ bản.
+Chức năng mở rộng:
+   * Tra cứu vé bằng Email hoặc Số điện thoại kết hợp OTP
+   * Quản lý vé thông qua mã truy cập tạm (UC-27)
+   * Lưu trữ lịch sử vé theo Email/SĐT trong 6 tháng
+   * Có thể nâng cấp lên tài khoản Customer bất kỳ lúc nào
+Phương thức xác thực: Email hoặc SĐT + mã OTP (6 số, hiệu lực 5 phút)
+Giới hạn:
+   * Không được tích điểm
+   * Không thể đánh giá chuyến đi
+   * Không lưu được danh sách hành khách thường đi
+   * Phiên làm việc (session) tự động hết hạn sau 30 phút
+   * 4.1.4 Các tác nhân khác
+3. Nhà xe (Bus Operator)
+Mô tả:
+Đơn vị cung cấp dịch vụ vận chuyển hành khách thông qua hệ thống.
+Chức năng:
+   * Quản lý tuyến đường và lịch trình
+   * Quản lý phương tiện và sơ đồ ghế
+   * Tạo và cập nhật lịch trình chuyến xe
+   * Thiết lập giá vé và chương trình khuyến mãi
+   * Quản lý nhân sự (tài xế, quản lý chuyến)
+   * Xem và xuất báo cáo doanh thu
+4. Người quản lý chuyến (Trip Manager)
+Mô tả:
+Nhân viên nhà xe chịu trách nhiệm điều hành và kiểm soát các chuyến xe cụ thể.
+Chức năng:
+   * Đăng nhập hệ thống quản lý chuyến
+   * Quét mã QR để xác thực vé
+   * Quản lý danh sách hành khách
+   * Cập nhật trạng thái chuyến xe
+Quyền hạn: Có thể chỉnh sửa và soát vé.
+5. Tài xế (Driver)
+Mô tả:
+Người lái xe thuộc nhà xe, được phân công thực hiện các chuyến đi.
+Chức năng:
+   * Đăng nhập hệ thống quản lý chuyến
+   * Xem thông tin chi tiết chuyến được phân công
+   * Xem danh sách hành khách trên chuyến
+   * Cập nhật trạng thái chuyến (chỉ xem, không chỉnh sửa)
+Quyền hạn: Chỉ được quyền xem thông tin.
+6. Quản trị viên hệ thống (System Admin)
+Mô tả:
+Người chịu trách nhiệm quản lý và vận hành toàn bộ hệ thống.
+Chức năng:
+   * Quản lý người dùng (Customer, Guest, Nhà xe)
+   * Duyệt đăng ký của các nhà xe mới
+   * Quản lý nội dung hiển thị (banner, blog, FAQ,...)
+   * Xử lý các khiếu nại của khách hàng
+   * Xem và thống kê báo cáo tổng hợp
+Quyền hạn: Cao nhất trong hệ thống.
+   * 4.1.5 Tác nhân phụ (Secondary Actors)
+7. Hệ thống Thanh toán (Payment Gateway)
+Mô tả:
+Dịch vụ bên thứ ba được tích hợp để xử lý thanh toán trực tuyến.
+Ví dụ: VNPay, MoMo, ZaloPay, VietQR.
+8. Hệ thống Email/SMS
+Mô tả:
+Dịch vụ gửi thông báo tự động từ hệ thống đến người dùng.
+Chức năng:
+   * Gửi mã OTP
+   * Gửi vé điện tử
+   * Gửi thông báo và xác nhận thanh toán
+Ví dụ: SendGrid, AWS SES, VNPT SMS.
+4.2 Sơ đồ Use Case Tổng quan
+  
+
+4.3 Danh sách Use Case theo Actor
+User (Abstract) - 7 use cases chung:
+   * UC-3: Tìm kiếm chuyến xe
+   * UC-4: Xem chi tiết chuyến
+   * UC-5: Đặt vé
+   * UC-6: Thanh toán
+   * UC-7: Nhận vé điện tử & QR
+   * UC-9: Hủy vé
+   * UC-10: Đổi vé
+Customer - 12 use cases (7 kế thừa + 5 riêng):
+Kế thừa từ User: UC-3, UC-4, UC-5, UC-6, UC-7, UC-9, UC-10
+Riêng:
+   * UC-1: Đăng ký tài khoản
+   * UC-2: Đăng nhập
+   * UC-8: Quản lý vé (Dashboard)
+   * UC-11: Đánh giá chuyến đi
+   * UC-28: Xem lịch sử tích điểm
+Guest - 8 use cases (7 kế thừa + 1 riêng):
+Kế thừa từ User: UC-3, UC-4, UC-5, UC-6, UC-7, UC-9*, UC-10*
+Riêng:
+   * UC-27: Tra cứu & quản lý vé (Email/SĐT + OTP)
+*UC-9, UC-10: Thực hiện qua UC-27, không qua Dashboard
+Nhà xe (Bus Operator) - 6 use cases:
+   * UC-12: Quản lý tuyến đường
+   * UC-13: Quản lý xe và sơ đồ ghế
+   * UC-14: Tạo lịch trình chuyến xe
+   * UC-15: Quản lý giá vé & voucher
+   * UC-16: Quản lý nhân viên
+   * UC-17: Xem báo cáo doanh thu
+Trip Manager - 4 use cases:
+   * UC-18: Đăng nhập quản lý chuyến
+   * UC-19: Quét QR xác thực vé
+   * UC-20: Quản lý danh sách hành khách
+   * UC-21: Cập nhật trạng thái chuyến xe
+Driver - 2 use cases (chỉ xem):
+   * UC-18: Đăng nhập quản lý chuyến (xem)
+   * UC-21: Cập nhật trạng thái chuyến xe (xem)
+System Admin - 5 use cases:
+   * UC-22: Quản lý người dùng
+   * UC-23: Duyệt đăng ký nhà xe
+   * UC-24: Quản lý nội dung
+   * UC-25: Xử lý khiếu nại
+   * UC-26: Xem báo cáo tổng hợp
+Tổng cộng: 28 use cases
