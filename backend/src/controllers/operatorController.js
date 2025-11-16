@@ -1,6 +1,6 @@
 import asyncHandler from '../utils/asyncHandler.js';
 import { successResponse, paginatedResponse } from '../utils/response.js';
-import { ConflictError, NotFoundError, AuthorizationError } from '../utils/errors.js';
+import { ConflictError, NotFoundError, AuthorizationError, BadRequestError } from '../utils/errors.js';
 import { generateTokenPair } from '../utils/jwt.js';
 import { BusOperator, Route, Bus } from '../models/index.js';
 

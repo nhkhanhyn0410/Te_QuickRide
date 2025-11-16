@@ -7,6 +7,7 @@ import {
   ConflictError
 } from '../utils/errors.js';
 import { Review, Booking, Trip } from '../models/index.js';
+import mongoose from 'mongoose';
 
 /**
  * @desc    Create review for a trip

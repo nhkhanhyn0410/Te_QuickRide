@@ -3,7 +3,8 @@ import { successResponse, paginatedResponse } from '../utils/response.js';
 import {
   NotFoundError,
   BadRequestError,
-  AuthorizationError
+  AuthorizationError,
+  ConflictError
 } from '../utils/errors.js';
 import { Bus } from '../models/index.js';
 
@@ -30,7 +31,7 @@ export const createBus = asyncHandler(async (req, res) => {
   });
 
   if (existingBus) {
-    throw new BadRequestError('Bus number already exists');
+    throw new ConflictError('Bus number already exists');
   }
 
   // Create bus
@@ -135,7 +136,7 @@ export const updateBus = asyncHandler(async (req, res) => {
     });
 
     if (existingBus) {
-      throw new BadRequestError('Bus number already exists');
+      throw new ConflictError('Bus number already exists');
     }
   }
 

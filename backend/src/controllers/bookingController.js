@@ -38,13 +38,15 @@ export const createBooking = asyncHandler(async (req, res) => {
   // Check if seats are available
   const seatNumbers = seats.map(s => s.seatNumber);
 
+  // Check seat availability
   for (const seatNumber of seatNumbers) {
-    if (trip.occupiedSeats.includes(seatNumber)) {
-      throw new BadRequestError(`Seat ${seatNumber} is already booked`);
-    }
-
     if (!trip.isSeatAvailable(seatNumber)) {
-      throw new BadRequestError(`Seat ${seatNumber} is not available`);
+      // Check specific reason for unavailability
+      if (trip.occupiedSeats.includes(seatNumber)) {
+        throw new BadRequestError(`Seat ${seatNumber} is already booked`);
+      } else {
+        throw new BadRequestError(`Seat ${seatNumber} is currently being selected by another user`);
+      }
     }
   }
 
