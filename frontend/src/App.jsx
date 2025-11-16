@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Provider } from 'react-redux';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Provider, useSelector } from 'react-redux';
 import { store } from './redux/store';
 import { ConfigProvider } from 'antd';
 import viVN from 'antd/locale/vi_VN';
@@ -68,6 +68,25 @@ const Layout = ({ children }) => {
   );
 };
 
+// Profile Redirect Component - redirects to appropriate profile based on user role
+const ProfileRedirect = () => {
+  const { user } = useSelector((state) => state.auth);
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Redirect based on user role
+  if (user.role === 'operator') {
+    return <Navigate to="/operator/profile" replace />;
+  } else if (user.role === 'admin') {
+    return <Navigate to="/admin/dashboard" replace />;
+  } else {
+    // Default to customer profile
+    return <Navigate to="/customer/profile" replace />;
+  }
+};
+
 function App() {
   return (
     <Provider store={store}>
@@ -123,6 +142,16 @@ function App() {
                 <Layout>
                   <TripDetails />
                 </Layout>
+              }
+            />
+
+            {/* Profile Redirect Route - redirects to role-specific profile */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <ProfileRedirect />
+                </ProtectedRoute>
               }
             />
 

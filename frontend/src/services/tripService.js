@@ -44,7 +44,7 @@ export const tripService = {
 
   // Get my trips (operator)
   getMyTrips: async (params) => {
-    const response = await api.get('/trips/my/trips', { params });
+    const response = await api.get('/trips/my-trips', { params });
     return response.data;
   },
 
@@ -56,8 +56,8 @@ export const tripService = {
 
   // Cancel trip (operator)
   cancelTrip: async (tripId, cancellationReason) => {
-    const response = await api.put(`/trips/${tripId}/cancel`, {
-      cancellationReason,
+    const response = await api.delete(`/trips/${tripId}`, {
+      data: { cancellationReason }
     });
     return response.data;
   },
