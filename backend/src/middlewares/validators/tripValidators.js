@@ -4,12 +4,12 @@ import { body, query, param } from 'express-validator';
  * Validation rules for searching trips
  */
 export const searchTripsValidator = [
-  query('originCity')
+  query('origin')
     .trim()
     .notEmpty()
     .withMessage('Origin city is required'),
 
-  query('destinationCity')
+  query('destination')
     .trim()
     .notEmpty()
     .withMessage('Destination city is required'),

@@ -15,8 +15,8 @@ import { Trip, Route, Bus } from '../models/index.js';
  */
 export const searchTrips = asyncHandler(async (req, res) => {
   const {
-    originCity,
-    destinationCity,
+    origin,
+    destination,
     departureDate,
     page = 1,
     limit = 20
@@ -24,8 +24,8 @@ export const searchTrips = asyncHandler(async (req, res) => {
 
   // Find routes matching origin and destination
   const routes = await Route.find({
-    'origin.city': { $regex: new RegExp(originCity, 'i') },
-    'destination.city': { $regex: new RegExp(destinationCity, 'i') },
+    'origin.city': { $regex: new RegExp(origin, 'i') },
+    'destination.city': { $regex: new RegExp(destination, 'i') },
     isActive: true
   });
 
