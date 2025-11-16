@@ -53,6 +53,7 @@ import {
   ManageVouchers,
   ManageBookings,
   Settings as AdminSettings,
+  AdminGuide,
 } from './pages/admin';
 
 // Layout Component
@@ -279,8 +280,9 @@ function App() {
               }
             />
 
+            {/* Ticket Routes */}
             <Route
-              path="/customer/tickets"
+              path="/my-tickets"
               element={
                 <ProtectedRoute requireAuth={true}>
                   <Layout>
@@ -291,7 +293,7 @@ function App() {
             />
 
             <Route
-              path="/customer/tickets/:ticketId"
+              path="/my-tickets/:ticketId"
               element={
                 <ProtectedRoute requireAuth={true}>
                   <Layout>
@@ -300,6 +302,10 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* Backward compatibility - redirect old routes */}
+            <Route path="/customer/tickets" element={<Navigate to="/my-tickets" replace />} />
+            <Route path="/customer/tickets/:ticketId" element={<Navigate to="/my-tickets/:ticketId" replace />} />
 
             {/* Operator Additional Routes */}
             <Route
@@ -506,6 +512,17 @@ function App() {
                 <ProtectedRoute requireAuth={true} requiredRole="admin">
                   <Layout>
                     <AdminSettings />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/guide"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="admin">
+                  <Layout>
+                    <AdminGuide />
                   </Layout>
                 </ProtectedRoute>
               }

@@ -3,7 +3,7 @@ import api from './api';
 export const staffService = {
   // Get all staff (operator)
   getAllStaff: async (params) => {
-    const response = await api.get('/staff', { params });
+    const response = await api.get('/staff/my', { params });
     return response.data;
   },
 
@@ -33,13 +33,13 @@ export const staffService = {
 
   // Assign staff to trip
   assignToTrip: async (staffId, tripId) => {
-    const response = await api.post(`/staff/${staffId}/assign`, { tripId });
+    const response = await api.post(`/staff/${staffId}/assign-trip`, { tripId });
     return response.data;
   },
 
-  // Get staff schedule
+  // Get staff trips/schedule
   getStaffSchedule: async (staffId, params) => {
-    const response = await api.get(`/staff/${staffId}/schedule`, { params });
+    const response = await api.get(`/staff/${staffId}/trips`, { params });
     return response.data;
   },
 };

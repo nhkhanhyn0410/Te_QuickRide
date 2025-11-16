@@ -15,13 +15,13 @@ export const userService = {
 
   // Get my profile
   getMyProfile: async () => {
-    const response = await api.get('/users/me');
+    const response = await api.get('/users/profile');
     return response.data;
   },
 
   // Update profile
   updateProfile: async (userData) => {
-    const response = await api.put('/users/me', userData);
+    const response = await api.put('/users/profile', userData);
     return response.data;
   },
 
@@ -51,7 +51,7 @@ export const userService = {
 
   // Change password
   changePassword: async (currentPassword, newPassword) => {
-    const response = await api.put('/users/me/password', {
+    const response = await api.put('/users/change-password', {
       currentPassword,
       newPassword,
     });

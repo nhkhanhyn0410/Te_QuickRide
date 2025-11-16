@@ -8,7 +8,10 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "test": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "db:clean": "node src/scripts/cleanDatabase.js",
+    "db:seed": "node src/scripts/seedDatabase.js",
+    "db:reset": "npm run db:clean && npm run db:seed"
   },
   "keywords": [
     "bus",
