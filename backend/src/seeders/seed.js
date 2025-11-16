@@ -459,17 +459,38 @@ const createLoyaltyPoints = async () => {
 const createNotifications = async () => {
   console.log('🔔 Creating notifications...');
 
-  const customer = sampleData.users.find(u => u.role === 'customer');
+  const customers = sampleData.users.filter(u => u.role === 'customer');
+  const admin = sampleData.users.find(u => u.role === 'admin');
+  const operator = sampleData.operators[0];
 
   const notifications = [
     {
-      recipientId: customer._id,
+      recipientId: customers[0]._id,
       recipientType: 'user',
       type: 'promotion',
       title: 'Ưu đãi đặc biệt!',
       message: 'Giảm 15% cho chuyến đi đầu tiên. Sử dụng mã WELCOME2025',
       priority: 'high',
       isRead: false
+    },
+    {
+      recipientId: customers[0]._id,
+      recipientType: 'user',
+      type: 'booking_confirmed',
+      title: 'Đặt vé thành công',
+      message: 'Vé của bạn đã được xác nhận. Chúc bạn có chuyến đi vui vẻ!',
+      priority: 'normal',
+      isRead: false
+    },
+    {
+      recipientId: operator._id,
+      recipientType: 'operator',
+      type: 'system',
+      title: 'Thông báo hệ thống',
+      message: 'Hệ thống đã được cập nhật thành công',
+      priority: 'normal',
+      isRead: true,
+      readAt: new Date()
     }
   ];
 
