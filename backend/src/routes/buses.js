@@ -11,18 +11,17 @@ import { protect, restrictTo, requireApproval } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-// Protected routes - Operator only
+// All routes require authentication
 router.use(protect);
-router.use(restrictTo('operator'));
-router.use(requireApproval);
 
-router.post('/', createBus);
-router.get('/my', getMyBuses);
-router.get('/:id', getBusById);
-router.put('/:id', updateBus);
-router.delete('/:id', deleteBus);
-
-// Admin routes
+// Admin routes - MUST come before operator routes for '/' path
 router.get('/', restrictTo('admin'), getBuses);
+
+// Operator routes
+router.post('/', restrictTo('operator'), requireApproval, createBus);
+router.get('/my', restrictTo('operator'), requireApproval, getMyBuses);
+router.get('/:id', restrictTo('operator'), requireApproval, getBusById);
+router.put('/:id', restrictTo('operator'), requireApproval, updateBus);
+router.delete('/:id', restrictTo('operator'), requireApproval, deleteBus);
 
 export default router;
