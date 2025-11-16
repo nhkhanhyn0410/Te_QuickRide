@@ -8,3 +8,4 @@ export { default as OperatorProfile } from './OperatorProfile';
 export { default as Analytics } from './Analytics';
 export { default as Bookings } from './Bookings';
 export { default as Reviews } from './Reviews';
+export { default as Promotions } from './Promotions';

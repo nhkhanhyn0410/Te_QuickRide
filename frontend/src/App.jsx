@@ -41,6 +41,7 @@ import {
   Analytics as OperatorAnalytics,
   Bookings as OperatorBookings,
   Reviews as OperatorReviews,
+  Promotions as OperatorPromotions,
 } from './pages/operator';
 
 // Admin Pages
@@ -49,6 +50,9 @@ import {
   ManageOperators,
   Analytics as AdminAnalytics,
   ManageUsers,
+  ManageVouchers,
+  ManageBookings,
+  Settings as AdminSettings,
 } from './pages/admin';
 
 // Layout Component
@@ -440,6 +444,51 @@ function App() {
                 <ProtectedRoute requireAuth={true} requiredRole="admin">
                   <Layout>
                     <AdminAnalytics />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/vouchers"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="admin">
+                  <Layout>
+                    <ManageVouchers />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/bookings"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="admin">
+                  <Layout>
+                    <ManageBookings />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/settings"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="admin">
+                  <Layout>
+                    <AdminSettings />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Operator Promotions Route */}
+            <Route
+              path="/operator/promotions"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <OperatorPromotions />
                   </Layout>
                 </ProtectedRoute>
               }
