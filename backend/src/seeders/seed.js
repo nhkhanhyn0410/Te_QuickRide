@@ -79,7 +79,7 @@ const clearCollections = async () => {
 const createUsers = async () => {
   console.log('👤 Creating users...');
 
-  const hashedPassword = await bcrypt.hash('password123', 12);
+  const hashedPassword = await bcrypt.hash('Password123', 12);
 
   const users = [
     {
@@ -134,7 +134,7 @@ const createUsers = async () => {
 const createBusOperators = async () => {
   console.log('🚌 Creating bus operators...');
 
-  const hashedPassword = await bcrypt.hash('operator123', 12);
+  const hashedPassword = await bcrypt.hash('Operator123', 12);
 
   const operators = [
     {
@@ -211,7 +211,7 @@ const createBusOperators = async () => {
 const createStaff = async () => {
   console.log('👨‍✈️ Creating staff members...');
 
-  const hashedPassword = await bcrypt.hash('staff123', 12);
+  const hashedPassword = await bcrypt.hash('Staff123', 12);
   const operator = sampleData.operators[0];
 
   const staff = [
@@ -973,10 +973,10 @@ const seedDatabase = async () => {
     console.log(`   - ${sampleData.notifications.length} Notifications`);
     console.log(`   - ${sampleData.systemLogs.length} System Logs`);
     console.log('\n📝 Login Credentials:');
-    console.log('   Admin:    admin@tequickride.com / password123');
-    console.log('   Customer: customer1@example.com / password123');
-    console.log('   Operator: contact@futabus.vn / operator123');
-    console.log('   Staff:    letai@futabus.vn / staff123');
+    console.log('   Admin:    admin@tequickride.com / Password123');
+    console.log('   Customer: customer1@example.com / Password123');
+    console.log('   Operator: contact@futabus.vn / Operator123');
+    console.log('   Staff:    letai@futabus.vn / Staff123');
 
     process.exit(0);
   } catch (error) {
