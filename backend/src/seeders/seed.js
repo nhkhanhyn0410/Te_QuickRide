@@ -255,35 +255,162 @@ const createRoutes = async () => {
     {
       operatorId: operator._id,
       routeName: 'Hà Nội - Đà Nẵng',
+      routeCode: 'HN-DN-001',
       origin: {
         city: 'Hà Nội',
-        address: 'Bến xe Giáp Bát, Hoàng Mai, Hà Nội'
+        province: 'Hà Nội',
+        station: 'Bến xe Giáp Bát',
+        address: 'Bến xe Giáp Bát, Hoàng Mai, Hà Nội',
+        coordinates: {
+          lat: 20.9953,
+          lng: 105.8243
+        }
       },
       destination: {
         city: 'Đà Nẵng',
-        address: 'Bến xe Đà Nẵng, Hải Châu, Đà Nẵng'
+        province: 'Đà Nẵng',
+        station: 'Bến xe Đà Nẵng',
+        address: 'Bến xe Đà Nẵng, Hải Châu, Đà Nẵng',
+        coordinates: {
+          lat: 16.0544,
+          lng: 108.2022
+        }
       },
       distance: 763,
       estimatedDuration: 720,
-      pickupPoints: ['Bến xe Giáp Bát', 'Ngã tư Sở', 'Cầu Giấy'],
-      dropoffPoints: ['Bến xe Đà Nẵng', 'Công viên APEC', 'Ngã ba Huế'],
+      pickupPoints: [
+        {
+          name: 'Bến xe Giáp Bát',
+          address: 'Giải Phóng, Hoàng Mai, Hà Nội',
+          coordinates: { lat: 20.9953, lng: 105.8243 }
+        },
+        {
+          name: 'Ngã tư Sở',
+          address: 'Ngã tư Sở, Đống Đa, Hà Nội',
+          coordinates: { lat: 21.0101, lng: 105.8270 }
+        },
+        {
+          name: 'Cầu Giấy',
+          address: 'Cầu Giấy, Hà Nội',
+          coordinates: { lat: 21.0325, lng: 105.7943 }
+        }
+      ],
+      dropoffPoints: [
+        {
+          name: 'Bến xe Đà Nẵng',
+          address: 'Bến xe Đà Nẵng, Hải Châu, Đà Nẵng',
+          coordinates: { lat: 16.0544, lng: 108.2022 }
+        },
+        {
+          name: 'Công viên APEC',
+          address: 'Công viên APEC, Ngũ Hành Sơn, Đà Nẵng',
+          coordinates: { lat: 16.0155, lng: 108.2471 }
+        },
+        {
+          name: 'Ngã ba Huế',
+          address: 'Ngã ba Huế, Hải Châu, Đà Nẵng',
+          coordinates: { lat: 16.0678, lng: 108.2208 }
+        }
+      ],
       isActive: true
     },
     {
       operatorId: operator._id,
       routeName: 'Hồ Chí Minh - Nha Trang',
+      routeCode: 'HCM-NT-001',
       origin: {
         city: 'Hồ Chí Minh',
-        address: 'Bến xe Miền Đông, Bình Thạnh, TP.HCM'
+        province: 'Hồ Chí Minh',
+        station: 'Bến xe Miền Đông',
+        address: 'Bến xe Miền Đông, Bình Thạnh, TP.HCM',
+        coordinates: {
+          lat: 10.8142,
+          lng: 106.7106
+        }
       },
       destination: {
         city: 'Nha Trang',
-        address: 'Bến xe Nha Trang, Khánh Hòa'
+        province: 'Khánh Hòa',
+        station: 'Bến xe Nha Trang',
+        address: 'Bến xe Nha Trang, Khánh Hòa',
+        coordinates: {
+          lat: 12.2585,
+          lng: 109.1898
+        }
       },
       distance: 448,
       estimatedDuration: 480,
-      pickupPoints: ['Bến xe Miền Đông', 'Thủ Đức', 'Dĩ An'],
-      dropoffPoints: ['Bến xe Nha Trang', 'Trung tâm TP Nha Trang'],
+      pickupPoints: [
+        {
+          name: 'Bến xe Miền Đông',
+          address: 'Bến xe Miền Đông, Bình Thạnh, TP.HCM',
+          coordinates: { lat: 10.8142, lng: 106.7106 }
+        },
+        {
+          name: 'Thủ Đức',
+          address: 'Quốc lộ 1A, Thủ Đức, TP.HCM',
+          coordinates: { lat: 10.8505, lng: 106.7690 }
+        },
+        {
+          name: 'Dĩ An',
+          address: 'Quốc lộ 1K, Dĩ An, Bình Dương',
+          coordinates: { lat: 10.9033, lng: 106.7651 }
+        }
+      ],
+      dropoffPoints: [
+        {
+          name: 'Bến xe Nha Trang',
+          address: 'Bến xe Nha Trang, Khánh Hòa',
+          coordinates: { lat: 12.2585, lng: 109.1898 }
+        },
+        {
+          name: 'Trung tâm TP Nha Trang',
+          address: 'Trần Phú, Nha Trang, Khánh Hòa',
+          coordinates: { lat: 12.2388, lng: 109.1967 }
+        }
+      ],
+      isActive: true
+    },
+    {
+      operatorId: operator._id,
+      routeName: 'Hà Nội - Hải Phòng',
+      routeCode: 'HN-HP-001',
+      origin: {
+        city: 'Hà Nội',
+        province: 'Hà Nội',
+        station: 'Bến xe Giáp Bát',
+        address: 'Bến xe Giáp Bát, Hoàng Mai, Hà Nội',
+        coordinates: {
+          lat: 20.9953,
+          lng: 105.8243
+        }
+      },
+      destination: {
+        city: 'Hải Phòng',
+        province: 'Hải Phòng',
+        station: 'Bến xe Niệm Nghĩa',
+        address: 'Bến xe Niệm Nghĩa, Hải Phòng',
+        coordinates: {
+          lat: 20.8449,
+          lng: 106.6881
+        }
+      },
+      distance: 120,
+      estimatedDuration: 120,
+      pickupPoints: [
+        {
+          name: 'Bến xe Giáp Bát',
+          address: 'Giải Phóng, Hoàng Mai, Hà Nội',
+          coordinates: { lat: 20.9953, lng: 105.8243 }
+        }
+      ],
+      dropoffPoints: [
+        {
+          name: 'Bến xe Niệm Nghĩa',
+          address: 'Bến xe Niệm Nghĩa, Hải Phòng',
+          coordinates: { lat: 20.8449, lng: 106.6881 }
+        }
+      ],
       isActive: true
     }
   ];
@@ -302,18 +429,26 @@ const createBuses = async () => {
     {
       operatorId: operator._id,
       busNumber: '51B-12345',
-      busType: 'Giường nằm',
+      busType: 'sleeper',
       totalSeats: 40,
       seatLayout: {
+        floors: 2,
         rows: 10,
         columns: 4,
-        seats: Array.from({ length: 40 }, (_, i) => ({
-          seatNumber: `A${i + 1}`,
-          position: { row: Math.floor(i / 4), column: i % 4 },
-          type: 'sleeper'
-        }))
+        layout: [
+          ['1A', '1B', 'X', '1C'],
+          ['2A', '2B', 'X', '2C'],
+          ['3A', '3B', 'X', '3C'],
+          ['4A', '4B', 'X', '4C'],
+          ['5A', '5B', 'X', '5C'],
+          ['6A', '6B', 'X', '6C'],
+          ['7A', '7B', 'X', '7C'],
+          ['8A', '8B', 'X', '8C'],
+          ['9A', '9B', 'X', '9C'],
+          ['10A', '10B', 'X', '10C']
+        ]
       },
-      amenities: ['WiFi', 'Điều hòa', 'Nước uống', 'Toilet', 'TV', 'Sạc điện', 'Chăn gối'],
+      amenities: ['wifi', 'ac', 'water', 'toilet', 'tv', 'usb_charger', 'blanket'],
       images: [
         'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957',
         'https://images.unsplash.com/photo-1570125909232-eb263c188f7e'
@@ -323,21 +458,53 @@ const createBuses = async () => {
     {
       operatorId: operator._id,
       busNumber: '51B-67890',
-      busType: 'Limousine',
+      busType: 'limousine',
       totalSeats: 24,
       seatLayout: {
+        floors: 1,
         rows: 6,
         columns: 4,
-        seats: Array.from({ length: 24 }, (_, i) => ({
-          seatNumber: `B${i + 1}`,
-          position: { row: Math.floor(i / 4), column: i % 4 },
-          type: 'vip'
-        }))
+        layout: [
+          ['A1', 'A2', 'X', 'A3'],
+          ['B1', 'B2', 'X', 'B3'],
+          ['C1', 'C2', 'X', 'C3'],
+          ['D1', 'D2', 'X', 'D3'],
+          ['E1', 'E2', 'X', 'E3'],
+          ['F1', 'F2', 'X', 'F3']
+        ]
       },
-      amenities: ['WiFi', 'Điều hòa', 'Nước uống', 'Toilet', 'Massage', 'Sạc điện', 'Chăn gối'],
+      amenities: ['wifi', 'ac', 'water', 'toilet', 'usb_charger', 'blanket', 'reading_light'],
       images: [
         'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957'
       ],
+      isActive: true
+    },
+    {
+      operatorId: operator._id,
+      busNumber: '51B-11111',
+      busType: 'seater',
+      totalSeats: 45,
+      seatLayout: {
+        floors: 1,
+        rows: 12,
+        columns: 4,
+        layout: [
+          ['1', '2', 'X', '3'],
+          ['4', '5', 'X', '6'],
+          ['7', '8', 'X', '9'],
+          ['10', '11', 'X', '12'],
+          ['13', '14', 'X', '15'],
+          ['16', '17', 'X', '18'],
+          ['19', '20', 'X', '21'],
+          ['22', '23', 'X', '24'],
+          ['25', '26', 'X', '27'],
+          ['28', '29', 'X', '30'],
+          ['31', '32', 'X', '33'],
+          ['34', '35', '36', '37']
+        ]
+      },
+      amenities: ['ac', 'water', 'usb_charger'],
+      images: [],
       isActive: true
     }
   ];
@@ -352,7 +519,7 @@ const createTrips = async () => {
 
   const operator = sampleData.operators[0];
   const route = sampleData.routes[0];
-  const bus = sampleData.buses[0];
+  const bus = sampleData.buses[1]; // Use limousine bus with A1, A2, A3, B1, B2, B3 seats
   const driver = sampleData.staff.find(s => s.role === 'driver');
   const manager = sampleData.staff.find(s => s.role === 'trip_manager');
 
@@ -371,7 +538,7 @@ const createTrips = async () => {
       departureTime: tomorrow,
       arrivalTime: new Date(tomorrow.getTime() + 12 * 60 * 60 * 1000),
       basePrice: 350000,
-      availableSeats: 40,
+      availableSeats: 24, // Limousine has 24 seats
       occupiedSeats: [],
       lockedSeats: [],
       status: 'scheduled'
@@ -380,6 +547,255 @@ const createTrips = async () => {
 
   sampleData.trips = await Trip.insertMany(trips);
   console.log(`✅ Created ${sampleData.trips.length} trips`);
+};
+
+// Create sample bookings
+const createBookings = async () => {
+  console.log('📝 Creating bookings...');
+
+  const customers = sampleData.users.filter(u => u.role === 'customer');
+  const trip = sampleData.trips[0];
+  const operator = sampleData.operators[0];
+  const route = sampleData.routes[0];
+
+  const bookings = [
+    {
+      bookingCode: 'BK20250116001',
+      customerId: customers[0]._id,
+      tripId: trip._id,
+      operatorId: operator._id,
+      seats: [
+        {
+          seatNumber: 'A1',
+          passenger: {
+            fullName: customers[0].fullName,
+            phone: customers[0].phone,
+            idCard: '079095001234'
+          }
+        },
+        {
+          seatNumber: 'A2',
+          passenger: {
+            fullName: 'Nguyễn Văn B',
+            phone: '0909876543',
+            idCard: '079095005678'
+          }
+        }
+      ],
+      pickupPoint: route.pickupPoints[0],
+      dropoffPoint: route.dropoffPoints[0],
+      subtotal: 700000,
+      discount: 50000,
+      totalAmount: 650000,
+      voucherCode: 'WELCOME2025',
+      contactEmail: customers[0].email,
+      contactPhone: customers[0].phone,
+      notes: 'Vui lòng gọi điện trước 30 phút',
+      status: 'confirmed',
+      checkedInSeats: [],
+      refundAmount: 0
+    },
+    {
+      bookingCode: 'BK20250116002',
+      customerId: customers[1]._id,
+      tripId: trip._id,
+      operatorId: operator._id,
+      seats: [
+        {
+          seatNumber: 'B1',
+          passenger: {
+            fullName: customers[1].fullName,
+            phone: customers[1].phone,
+            idCard: '079095009012'
+          }
+        }
+      ],
+      pickupPoint: route.pickupPoints[1],
+      dropoffPoint: route.dropoffPoints[1],
+      subtotal: 350000,
+      discount: 0,
+      totalAmount: 350000,
+      contactEmail: customers[1].email,
+      contactPhone: customers[1].phone,
+      status: 'confirmed',
+      checkedInSeats: ['B1'],
+      checkedInAt: new Date(),
+      refundAmount: 0
+    }
+  ];
+
+  sampleData.bookings = await Booking.insertMany(bookings);
+
+  // Update trip occupied seats
+  await Trip.findByIdAndUpdate(trip._id, {
+    $set: {
+      occupiedSeats: ['A1', 'A2', 'B1'],
+      availableSeats: trip.availableSeats - 3
+    }
+  });
+
+  console.log(`✅ Created ${sampleData.bookings.length} bookings`);
+};
+
+// Create sample tickets
+const createTickets = async () => {
+  console.log('🎫 Creating tickets...');
+
+  const tickets = [];
+
+  // Create tickets for each booking
+  for (const booking of sampleData.bookings) {
+    const trip = await Trip.findById(booking.tripId).populate('routeId');
+    const operator = await BusOperator.findById(booking.operatorId);
+
+    for (const seat of booking.seats) {
+      const ticketCode = `TK${booking.bookingCode.substring(2)}${seat.seatNumber}`;
+
+      tickets.push({
+        ticketCode: ticketCode,
+        bookingId: booking._id,
+        customerId: booking.customerId,
+        tripId: booking.tripId,
+        seatNumber: seat.seatNumber,
+        passenger: seat.passenger,
+        qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${ticketCode}`,
+        qrData: JSON.stringify({
+          ticketCode: ticketCode,
+          bookingCode: booking.bookingCode,
+          seatNumber: seat.seatNumber,
+          passengerName: seat.passenger.fullName,
+          departureTime: trip.departureTime
+        }),
+        ticketPDF: `https://tequickride.vn/tickets/${ticketCode}.pdf`,
+        isValid: booking.status === 'confirmed' || booking.status === 'completed',
+        isUsed: booking.checkedInSeats.includes(seat.seatNumber),
+        usedAt: booking.checkedInSeats.includes(seat.seatNumber) ? booking.checkedInAt : null,
+        tripDetails: {
+          routeName: trip.routeId.routeName,
+          origin: trip.routeId.origin.city,
+          destination: trip.routeId.destination.city,
+          departureTime: trip.departureTime,
+          busNumber: (await Bus.findById(trip.busId)).busNumber,
+          operatorName: operator.companyName
+        }
+      });
+    }
+  }
+
+  sampleData.tickets = await Ticket.insertMany(tickets);
+  console.log(`✅ Created ${sampleData.tickets.length} tickets`);
+};
+
+// Create sample payments
+const createPayments = async () => {
+  console.log('💳 Creating payments...');
+
+  const payments = [];
+
+  // Create payment for each booking
+  for (const booking of sampleData.bookings) {
+    const paymentMethods = ['momo', 'vnpay', 'zalopay', 'visa'];
+    const method = paymentMethods[Math.floor(Math.random() * paymentMethods.length)];
+
+    let gatewayResponse = null;
+    let gatewayTransactionId = null;
+    let status = 'success';
+
+    if (booking.status === 'confirmed') {
+      status = 'success';
+
+      if (method === 'momo') {
+        gatewayTransactionId = `MOMO_${Date.now()}`;
+        gatewayResponse = {
+          partnerCode: 'MOMO',
+          orderId: booking.bookingCode,
+          requestId: Date.now().toString(),
+          amount: booking.totalAmount,
+          orderInfo: `Thanh toán vé xe TeQuickRide - ${booking.bookingCode}`,
+          orderType: 'momo_wallet',
+          transId: Math.floor(Math.random() * 9999999999),
+          resultCode: 0,
+          message: 'Successful.',
+          payType: 'qr',
+          responseTime: Date.now(),
+          extraData: '',
+          signature: 'a1b2c3d4e5f6g7h8i9j0'
+        };
+      } else if (method === 'vnpay') {
+        gatewayTransactionId = `VNPAY_${Date.now()}`;
+        gatewayResponse = {
+          vnp_Amount: booking.totalAmount * 100,
+          vnp_BankCode: 'NCB',
+          vnp_BankTranNo: `VNP${Math.floor(Math.random() * 99999999)}`,
+          vnp_CardType: 'ATM',
+          vnp_OrderInfo: `Thanh toan ve xe TeQuickRide - ${booking.bookingCode}`,
+          vnp_PayDate: new Date().toISOString().replace(/[-:]/g, '').slice(0, 14),
+          vnp_ResponseCode: '00',
+          vnp_TmnCode: 'TEQUICKRIDE',
+          vnp_TransactionNo: Math.floor(Math.random() * 99999999).toString(),
+          vnp_TransactionStatus: '00',
+          vnp_TxnRef: booking.bookingCode,
+          vnp_SecureHash: 'z1y2x3w4v5u6t7s8r9q0'
+        };
+      }
+    }
+
+    payments.push({
+      transactionId: `TXN${Date.now()}${Math.floor(Math.random() * 9999)}`,
+      bookingId: booking._id,
+      customerId: booking.customerId,
+      amount: booking.totalAmount,
+      currency: 'VND',
+      paymentMethod: method,
+      gatewayTransactionId: gatewayTransactionId,
+      gatewayResponse: gatewayResponse,
+      status: status,
+      refundAmount: booking.refundAmount,
+      refundedAt: booking.refundAmount > 0 ? new Date() : null,
+      refundReason: booking.cancellationReason
+    });
+  }
+
+  sampleData.payments = await Payment.insertMany(payments);
+  console.log(`✅ Created ${sampleData.payments.length} payments`);
+};
+
+// Create sample reviews
+const createReviews = async () => {
+  console.log('⭐ Creating reviews...');
+
+  const reviews = [];
+
+  // Create review for confirmed bookings
+  const confirmedBookings = sampleData.bookings.filter(b => b.status === 'confirmed');
+
+  for (let i = 0; i < Math.min(2, confirmedBookings.length); i++) {
+    const booking = confirmedBookings[i];
+    const trip = await Trip.findById(booking.tripId);
+
+    reviews.push({
+      customerId: booking.customerId,
+      tripId: booking.tripId,
+      operatorId: booking.operatorId,
+      bookingId: booking._id,
+      rating: 4 + i, // 4 and 5 stars
+      title: i === 0 ? 'Chuyến đi tuyệt vời!' : 'Dịch vụ tốt',
+      comment: i === 0
+        ? 'Xe sạch sẽ, tài xế lái xe an toàn. Nhân viên phục vụ nhiệt tình. Sẽ tiếp tục ủng hộ!'
+        : 'Xe đúng giờ, tiện nghi đầy đủ. Giá cả hợp lý.',
+      serviceRating: 5,
+      driverRating: i === 0 ? 5 : 4,
+      vehicleRating: 4,
+      punctualityRating: 5,
+      images: [],
+      isApproved: true,
+      isHidden: false,
+      helpfulCount: Math.floor(Math.random() * 20)
+    });
+  }
+
+  sampleData.reviews = await Review.insertMany(reviews);
+  console.log(`✅ Created ${sampleData.reviews.length} reviews`);
 };
 
 // Create sample vouchers
@@ -459,17 +875,38 @@ const createLoyaltyPoints = async () => {
 const createNotifications = async () => {
   console.log('🔔 Creating notifications...');
 
-  const customer = sampleData.users.find(u => u.role === 'customer');
+  const customers = sampleData.users.filter(u => u.role === 'customer');
+  const admin = sampleData.users.find(u => u.role === 'admin');
+  const operator = sampleData.operators[0];
 
   const notifications = [
     {
-      recipientId: customer._id,
+      recipientId: customers[0]._id,
       recipientType: 'user',
       type: 'promotion',
       title: 'Ưu đãi đặc biệt!',
       message: 'Giảm 15% cho chuyến đi đầu tiên. Sử dụng mã WELCOME2025',
       priority: 'high',
       isRead: false
+    },
+    {
+      recipientId: customers[0]._id,
+      recipientType: 'user',
+      type: 'booking_confirmed',
+      title: 'Đặt vé thành công',
+      message: 'Vé của bạn đã được xác nhận. Chúc bạn có chuyến đi vui vẻ!',
+      priority: 'normal',
+      isRead: false
+    },
+    {
+      recipientId: operator._id,
+      recipientType: 'operator',
+      type: 'system',
+      title: 'Thông báo hệ thống',
+      message: 'Hệ thống đã được cập nhật thành công',
+      priority: 'normal',
+      isRead: true,
+      readAt: new Date()
     }
   ];
 
@@ -510,6 +947,10 @@ const seedDatabase = async () => {
     await createRoutes();
     await createBuses();
     await createTrips();
+    await createBookings();
+    await createTickets();
+    await createPayments();
+    await createReviews();
     await createVouchers();
     await createLoyaltyPoints();
     await createNotifications();
@@ -523,6 +964,10 @@ const seedDatabase = async () => {
     console.log(`   - ${sampleData.routes.length} Routes`);
     console.log(`   - ${sampleData.buses.length} Buses`);
     console.log(`   - ${sampleData.trips.length} Trips`);
+    console.log(`   - ${sampleData.bookings.length} Bookings`);
+    console.log(`   - ${sampleData.tickets.length} Tickets`);
+    console.log(`   - ${sampleData.payments.length} Payments`);
+    console.log(`   - ${sampleData.reviews.length} Reviews`);
     console.log(`   - ${sampleData.vouchers.length} Vouchers`);
     console.log(`   - ${sampleData.loyaltyPoints.length} Loyalty Point Transactions`);
     console.log(`   - ${sampleData.notifications.length} Notifications`);
