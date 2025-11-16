@@ -7,6 +7,11 @@ import Booking from './Booking.js';
 import Payment from './Payment.js';
 import Ticket from './Ticket.js';
 import Staff from './Staff.js';
+import Review from './Review.js';
+import Voucher from './Voucher.js';
+import LoyaltyPoint from './LoyaltyPoint.js';
+import Notification from './Notification.js';
+import SystemLog from './SystemLog.js';
 
 export {
   User,
@@ -17,5 +22,10 @@ export {
   Booking,
   Payment,
   Ticket,
-  Staff
+  Staff,
+  Review,
+  Voucher,
+  LoyaltyPoint,
+  Notification,
+  SystemLog
 };
