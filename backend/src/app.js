@@ -57,6 +57,9 @@ import ticketRoutes from './routes/tickets.js';
 import busRoutes from './routes/buses.js';
 import routeRoutes from './routes/routes.js';
 import staffRoutes from './routes/staff.js';
+import reviewRoutes from './routes/reviews.js';
+import voucherRoutes from './routes/vouchers.js';
+import notificationRoutes from './routes/notifications.js';
 
 // API routes
 app.get('/api', (req, res) => {
@@ -74,7 +77,10 @@ app.get('/api', (req, res) => {
       tickets: '/api/tickets',
       buses: '/api/buses',
       routes: '/api/routes',
-      staff: '/api/staff'
+      staff: '/api/staff',
+      reviews: '/api/reviews',
+      vouchers: '/api/vouchers',
+      notifications: '/api/notifications'
     }
   });
 });
@@ -90,6 +96,9 @@ app.use('/api/tickets', ticketRoutes);
 app.use('/api/buses', busRoutes);
 app.use('/api/routes', routeRoutes);
 app.use('/api/staff', staffRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/vouchers', voucherRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // 404 handler
 app.use((req, res) => {
