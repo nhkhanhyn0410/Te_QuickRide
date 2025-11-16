@@ -35,12 +35,16 @@ import {
   CreateTrip,
   ManageTrips,
   OperatorProfile,
+  Analytics as OperatorAnalytics,
+  Bookings as OperatorBookings,
 } from './pages/operator';
 
 // Admin Pages
 import {
   Dashboard as AdminDashboard,
   ManageOperators,
+  Analytics as AdminAnalytics,
+  ManageUsers,
 } from './pages/admin';
 
 // Layout Component
@@ -272,6 +276,28 @@ function App() {
               }
             />
 
+            <Route
+              path="/operator/analytics"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <OperatorAnalytics />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/operator/bookings"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <OperatorBookings />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
             {/* Customer Notifications Route */}
             <Route
               path="/notifications"
@@ -312,6 +338,28 @@ function App() {
                 <ProtectedRoute requireAuth={true} requiredRole="admin">
                   <Layout>
                     <ManageOperators />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="admin">
+                  <Layout>
+                    <ManageUsers />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/analytics"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="admin">
+                  <Layout>
+                    <AdminAnalytics />
                   </Layout>
                 </ProtectedRoute>
               }
