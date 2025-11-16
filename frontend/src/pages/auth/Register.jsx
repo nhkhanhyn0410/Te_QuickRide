@@ -18,9 +18,11 @@ const Register = () => {
     try {
       setLoading(true);
 
-      // Format date of birth
+      // Format data for backend
+      const { confirmPassword, phoneNumber, ...restValues } = values;
       const formattedValues = {
-        ...values,
+        ...restValues,
+        phone: phoneNumber, // Rename phoneNumber to phone for backend
         dateOfBirth: values.dateOfBirth ? values.dateOfBirth.format('YYYY-MM-DD') : undefined,
       };
 
@@ -78,7 +80,7 @@ const Register = () => {
               name="phoneNumber"
               rules={[
                 { required: true, message: 'Vui lòng nhập số điện thoại!' },
-                { pattern: /^(0|\+84)[0-9]{9}$/, message: 'Số điện thoại không hợp lệ!' }
+                { pattern: /^(0|\+84)[0-9]{9,10}$/, message: 'Số điện thoại không hợp lệ!' }
               ]}
             >
               <Input
@@ -110,12 +112,16 @@ const Register = () => {
               name="password"
               rules={[
                 { required: true, message: 'Vui lòng nhập mật khẩu!' },
-                { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' }
+                { min: 8, message: 'Mật khẩu phải có ít nhất 8 ký tự!' },
+                {
+                  pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+                  message: 'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 số!'
+                }
               ]}
             >
               <Input.Password
                 prefix={<LockOutlined className="text-gray-400" />}
-                placeholder="Nhập mật khẩu"
+                placeholder="Nhập mật khẩu (min 8 ký tự)"
                 size="large"
               />
             </Form.Item>
