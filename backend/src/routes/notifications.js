@@ -14,9 +14,10 @@ const router = express.Router();
 // All routes require authentication
 router.use(protect);
 
-router.get('/', getMyNotifications);
+// Specific routes before generic routes
 router.get('/unread-count', getUnreadCount);
 router.put('/read-all', markAllAsRead);
+router.get('/', getMyNotifications);
 router.put('/:id/read', markAsRead);
 router.delete('/:id', deleteNotification);
 router.delete('/', deleteAllNotifications);
