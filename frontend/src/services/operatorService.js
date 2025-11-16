@@ -15,13 +15,13 @@ export const operatorService = {
 
   // Get operator profile (authenticated)
   getMyProfile: async () => {
-    const response = await api.get('/operators/me');
+    const response = await api.get('/operators/profile');
     return response.data;
   },
 
   // Update operator profile
   updateProfile: async (operatorData) => {
-    const response = await api.put('/operators/me', operatorData);
+    const response = await api.put('/operators/profile', operatorData);
     return response.data;
   },
 
@@ -43,9 +43,12 @@ export const operatorService = {
     return response.data;
   },
 
-  // Approve operator (admin)
-  approveOperator: async (operatorId) => {
-    const response = await api.put(`/operators/${operatorId}/approve`);
+  // Approve/verify operator (admin)
+  approveOperator: async (operatorId, status, rejectionReason = null) => {
+    const response = await api.put(`/operators/${operatorId}/verify`, {
+      status,
+      rejectionReason
+    });
     return response.data;
   },
 

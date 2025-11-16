@@ -29,7 +29,7 @@ export const bookingService = {
 
   // Get operator bookings
   getOperatorBookings: async (params) => {
-    const response = await api.get('/bookings/operator', { params });
+    const response = await api.get('/bookings/operator-bookings', { params });
     return response.data;
   },
 
