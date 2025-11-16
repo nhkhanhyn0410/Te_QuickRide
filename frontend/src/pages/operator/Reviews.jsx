@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import reviewService from '../../services/reviewService';
 import {
   Card,
   List,
@@ -35,6 +37,7 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 const Reviews = () => {
+  const { user } = useSelector(state => state.auth);
   const [responseModal, setResponseModal] = useState(false);
   const [selectedReview, setSelectedReview] = useState(null);
   const [form] = Form.useForm();
@@ -42,22 +45,58 @@ const Reviews = () => {
   const [filterRating, setFilterRating] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [loading, setLoading] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [stats, setStats] = useState({
+    totalReviews: 0,
+    avgRating: 0,
+    fiveStars: 0,
+    fourStars: 0,
+    threeStars: 0,
+    twoStars: 0,
+    oneStar: 0,
+    responded: 0,
+    pending: 0
+  });
 
-  // Mock statistics
-  const stats = {
-    totalReviews: 456,
-    avgRating: 4.6,
-    fiveStars: 289,
-    fourStars: 112,
-    threeStars: 34,
-    twoStars: 15,
-    oneStar: 6,
-    responded: 398,
-    pending: 58
+  useEffect(() => {
+    fetchReviews();
+  }, []);
+
+  const fetchReviews = async () => {
+    setLoading(true);
+    try {
+      const response = await reviewService.getOperatorReviews(user?.operatorId || user?._id);
+      const reviewsData = response.data || [];
+      setReviews(reviewsData);
+
+      // Calculate statistics
+      const totalReviews = reviewsData.length;
+      const avgRating = totalReviews > 0
+        ? reviewsData.reduce((sum, r) => sum + r.rating, 0) / totalReviews
+        : 0;
+
+      const newStats = {
+        totalReviews,
+        avgRating,
+        fiveStars: reviewsData.filter(r => r.rating === 5).length,
+        fourStars: reviewsData.filter(r => r.rating === 4).length,
+        threeStars: reviewsData.filter(r => r.rating === 3).length,
+        twoStars: reviewsData.filter(r => r.rating === 2).length,
+        oneStar: reviewsData.filter(r => r.rating === 1).length,
+        responded: reviewsData.filter(r => r.hasResponse || r.response).length,
+        pending: reviewsData.filter(r => !r.hasResponse && !r.response).length
+      };
+      setStats(newStats);
+    } catch (error) {
+      message.error('Không thể tải danh sách đánh giá');
+      console.error('Error fetching reviews:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Mock reviews data
-  const reviews = [
+  // Backup mock data for development
+  const mockReviews = [
     {
       id: 1,
       bookingCode: 'BK2024011401',
@@ -165,13 +204,17 @@ const Reviews = () => {
 
   const handleSubmitResponse = async (values) => {
     setLoading(true);
-    // TODO: Integrate with API
-    console.log('Response to review:', selectedReview.id, values);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await reviewService.respondToReview(selectedReview._id || selectedReview.id, values.response);
       message.success('Đã gửi phản hồi thành công');
       setResponseModal(false);
-    }, 1000);
+      fetchReviews(); // Refresh reviews
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Không thể gửi phản hồi');
+      console.error('Error submitting response:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredReviews = reviews.filter(review => {

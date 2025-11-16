@@ -22,6 +22,9 @@ import {
   CarOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import routeService from '../../services/routeService';
+import busService from '../../services/busService';
+import tripService from '../../services/tripService';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -43,74 +46,21 @@ const CreateTrip = () => {
 
   const fetchRoutes = async () => {
     try {
-      // TODO: Integrate with API
-      // Mock data
-      setRoutes([
-        {
-          _id: 'route1',
-          routeCode: 'RT001',
-          origin: { city: 'TP. Hồ Chí Minh', station: 'Bến xe Miền Đông' },
-          destination: { city: 'Đà Lạt', station: 'Bến xe Đà Lạt' },
-          distance: 308,
-          estimatedDuration: 480, // minutes
-          isActive: true
-        },
-        {
-          _id: 'route2',
-          routeCode: 'RT002',
-          origin: { city: 'TP. Hồ Chí Minh', station: 'Bến xe Miền Tây' },
-          destination: { city: 'Cần Thơ', station: 'Bến xe Cần Thơ' },
-          distance: 169,
-          estimatedDuration: 240,
-          isActive: true
-        },
-        {
-          _id: 'route3',
-          routeCode: 'RT003',
-          origin: { city: 'Hà Nội', station: 'Bến xe Mỹ Đình' },
-          destination: { city: 'Hải Phòng', station: 'Bến xe Niệm Nghĩa' },
-          distance: 120,
-          estimatedDuration: 150,
-          isActive: true
-        }
-      ]);
+      const response = await routeService.getMyRoutes({ isActive: true });
+      setRoutes(response.data || []);
     } catch (error) {
       message.error('Không thể tải danh sách tuyến đường');
+      console.error('Error fetching routes:', error);
     }
   };
 
   const fetchBuses = async () => {
     try {
-      // TODO: Integrate with API
-      // Mock data
-      setBuses([
-        {
-          _id: 'bus1',
-          busNumber: '51B-12345',
-          type: 'Giường nằm',
-          totalSeats: 40,
-          amenities: ['WiFi', 'Điều hòa', 'Nước uống'],
-          isActive: true
-        },
-        {
-          _id: 'bus2',
-          busNumber: '51B-67890',
-          type: 'Ghế ngồi',
-          totalSeats: 45,
-          amenities: ['Điều hòa', 'Nước uống'],
-          isActive: true
-        },
-        {
-          _id: 'bus3',
-          busNumber: '51B-11111',
-          type: 'Limousine',
-          totalSeats: 24,
-          amenities: ['WiFi', 'Điều hòa', 'Nước uống', 'TV', 'Ghế massage'],
-          isActive: true
-        }
-      ]);
+      const response = await busService.getAllBuses({ isActive: true });
+      setBuses(response.data || []);
     } catch (error) {
       message.error('Không thể tải danh sách xe');
+      console.error('Error fetching buses:', error);
     }
   };
 
@@ -143,19 +93,21 @@ const CreateTrip = () => {
   const handleSubmit = async (values) => {
     setLoading(true);
     try {
-      // TODO: Integrate with API
-      console.log('Creating trip:', {
-        ...values,
+      const tripData = {
+        routeId: values.routeId,
+        busId: values.busId,
         departureTime: values.departureTime.toISOString(),
-        arrivalTime: values.arrivalTime.toISOString()
-      });
+        arrivalTime: values.arrivalTime.toISOString(),
+        basePrice: values.basePrice,
+        status: values.status || 'scheduled'
+      };
 
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
+      await tripService.createTrip(tripData);
       message.success('Tạo chuyến đi thành công!');
       navigate('/operator/trips');
     } catch (error) {
-      message.error('Không thể tạo chuyến đi. Vui lòng thử lại sau.');
+      message.error(error.response?.data?.message || 'Không thể tạo chuyến đi. Vui lòng thử lại sau.');
+      console.error('Error creating trip:', error);
     } finally {
       setLoading(false);
     }
@@ -207,11 +159,10 @@ const CreateTrip = () => {
                     {routes.map(route => (
                       <Option key={route._id} value={route._id}>
                         <div>
-                          <Text strong>{route.routeCode}</Text> -{' '}
-                          {route.origin.city} → {route.destination.city}
+                          <Text strong>{route.routeName}</Text>
                           <br />
                           <Text type="secondary" className="text-sm">
-                            {route.distance}km • {Math.floor(route.estimatedDuration / 60)}h{route.estimatedDuration % 60}m
+                            {route.origin?.city} → {route.destination?.city} • {route.distance}km • {Math.floor(route.estimatedDuration / 60)}h{route.estimatedDuration % 60}m
                           </Text>
                         </div>
                       </Option>
@@ -235,10 +186,10 @@ const CreateTrip = () => {
                     {buses.map(bus => (
                       <Option key={bus._id} value={bus._id}>
                         <div>
-                          <Text strong>{bus.busNumber}</Text> - {bus.type}
+                          <Text strong>{bus.busNumber}</Text> - {bus.busType}
                           <br />
                           <Text type="secondary" className="text-sm">
-                            {bus.totalSeats} ghế • {bus.amenities.join(', ')}
+                            {bus.totalSeats} ghế • {bus.amenities?.join(', ')}
                           </Text>
                         </div>
                       </Option>
@@ -354,22 +305,22 @@ const CreateTrip = () => {
               <Card title="Thông tin tuyến đường" className="mb-4 shadow-md">
                 <div className="space-y-3">
                   <div>
-                    <Text type="secondary" className="block mb-1">Mã tuyến</Text>
-                    <Tag color="blue">{selectedRoute.routeCode}</Tag>
+                    <Text type="secondary" className="block mb-1">Tên tuyến</Text>
+                    <Tag color="blue">{selectedRoute.routeName}</Tag>
                   </div>
                   <div>
                     <Text type="secondary" className="block mb-1">
                       <EnvironmentOutlined /> Điểm đi
                     </Text>
-                    <Text strong className="block">{selectedRoute.origin.city}</Text>
-                    <Text className="text-sm text-gray-600">{selectedRoute.origin.station}</Text>
+                    <Text strong className="block">{selectedRoute.origin?.city}</Text>
+                    <Text className="text-sm text-gray-600">{selectedRoute.origin?.address}</Text>
                   </div>
                   <div>
                     <Text type="secondary" className="block mb-1">
                       <EnvironmentOutlined /> Điểm đến
                     </Text>
-                    <Text strong className="block">{selectedRoute.destination.city}</Text>
-                    <Text className="text-sm text-gray-600">{selectedRoute.destination.station}</Text>
+                    <Text strong className="block">{selectedRoute.destination?.city}</Text>
+                    <Text className="text-sm text-gray-600">{selectedRoute.destination?.address}</Text>
                   </div>
                   <Divider className="my-2" />
                   <div className="flex justify-between">
@@ -398,7 +349,7 @@ const CreateTrip = () => {
                   </div>
                   <div>
                     <Text type="secondary" className="block mb-1">Loại xe</Text>
-                    <Tag color="green">{selectedBus.type}</Tag>
+                    <Tag color="green">{selectedBus.busType}</Tag>
                   </div>
                   <div>
                     <Text type="secondary" className="block mb-1">Số ghế</Text>
@@ -407,7 +358,7 @@ const CreateTrip = () => {
                   <div>
                     <Text type="secondary" className="block mb-1">Tiện ích</Text>
                     <Space wrap className="mt-1">
-                      {selectedBus.amenities.map((amenity, idx) => (
+                      {selectedBus.amenities?.map((amenity, idx) => (
                         <Tag key={idx}>{amenity}</Tag>
                       ))}
                     </Space>

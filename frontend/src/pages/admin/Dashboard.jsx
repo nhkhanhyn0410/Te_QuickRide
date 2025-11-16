@@ -9,7 +9,8 @@ import {
   Typography,
   Button,
   Space,
-  Progress
+  Progress,
+  message
 } from 'antd';
 import {
   UserOutlined,
@@ -22,85 +23,67 @@ import {
   ClockCircleOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import analyticsService from '../../services/analyticsService';
+import operatorService from '../../services/operatorService';
 
 const { Title, Text } = Typography;
 
 const AdminDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({
-    totalUsers: 15234,
-    totalOperators: 145,
-    totalBookings: 8912,
-    totalRevenue: 2456789000,
-    userGrowth: 12.5,
-    operatorGrowth: 8.3,
-    bookingGrowth: 15.2,
-    revenueGrowth: 18.7
+    totalUsers: 0,
+    totalOperators: 0,
+    totalBookings: 0,
+    totalRevenue: 0,
+    userGrowth: 0,
+    operatorGrowth: 0,
+    bookingGrowth: 0,
+    revenueGrowth: 0
   });
 
-  const [pendingOperators] = useState([
-    {
-      id: 1,
-      name: 'Nhà xe Phương Nam',
-      email: 'phuongnam@example.com',
-      phone: '0901234567',
-      submittedAt: '2024-01-15',
-      status: 'pending'
-    },
-    {
-      id: 2,
-      name: 'Nhà xe Hoàng Long',
-      email: 'hoanglong@example.com',
-      phone: '0912345678',
-      submittedAt: '2024-01-14',
-      status: 'pending'
-    }
-  ]);
+  const [pendingOperators, setPendingOperators] = useState([]);
+  const [recentActivities, setRecentActivities] = useState([]);
+  const [topOperators, setTopOperators] = useState([]);
 
-  const [recentActivities] = useState([
-    {
-      id: 1,
-      type: 'booking',
-      description: 'Khách hàng Nguyễn Văn A đặt vé thành công',
-      time: '5 phút trước'
-    },
-    {
-      id: 2,
-      type: 'operator',
-      description: 'Nhà xe Phương Trang đăng ký tài khoản mới',
-      time: '15 phút trước'
-    },
-    {
-      id: 3,
-      type: 'payment',
-      description: 'Thanh toán thành công cho booking BK20240115',
-      time: '30 phút trước'
-    }
-  ]);
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
-  const [topOperators] = useState([
-    {
-      id: 1,
-      name: 'Phương Trang',
-      revenue: 456789000,
-      bookings: 1234,
-      rating: 4.8
-    },
-    {
-      id: 2,
-      name: 'Hoàng Long',
-      revenue: 345678000,
-      bookings: 987,
-      rating: 4.7
-    },
-    {
-      id: 3,
-      name: 'Mai Linh',
-      revenue: 234567000,
-      bookings: 756,
-      rating: 4.6
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    try {
+      // Fetch dashboard stats
+      const dashboardData = await analyticsService.getDashboardStats();
+      setStats(dashboardData);
+
+      // Fetch pending operators
+      const operatorsData = await operatorService.getAllOperators({ verificationStatus: 'pending' });
+      setPendingOperators(operatorsData.data || []);
+
+      // Fetch top operators
+      const topOpsData = await analyticsService.getOperatorPerformance({ limit: 5 });
+      setTopOperators(topOpsData.data || []);
+
+      // Recent activities would come from a dedicated endpoint if available
+      // For now, we can keep it as mock data or fetch from backend
+    } catch (error) {
+      message.error('Không thể tải dữ liệu dashboard');
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  const handleApproveOperator = async (operatorId) => {
+    try {
+      await operatorService.approveOperator(operatorId);
+      message.success('Đã duyệt nhà xe thành công');
+      fetchDashboardData(); // Refresh data
+    } catch (error) {
+      message.error('Không thể duyệt nhà xe');
+      console.error('Error approving operator:', error);
+    }
+  };
 
   const operatorColumns = [
     {
@@ -120,22 +103,24 @@ const AdminDashboard = () => {
     },
     {
       title: 'Ngày đăng ký',
-      dataIndex: 'submittedAt',
-      key: 'submittedAt',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
       render: (date) => dayjs(date).format('DD/MM/YYYY')
     },
     {
       title: 'Trạng thái',
-      dataIndex: 'status',
-      key: 'status',
+      dataIndex: 'verificationStatus',
+      key: 'verificationStatus',
       render: () => <Tag color="orange">Chờ duyệt</Tag>
     },
     {
       title: 'Thao tác',
       key: 'action',
-      render: () => (
+      render: (_, record) => (
         <Space>
-          <Button type="primary" size="small">Duyệt</Button>
+          <Button type="primary" size="small" onClick={() => handleApproveOperator(record._id)}>
+            Duyệt
+          </Button>
           <Button danger size="small">Từ chối</Button>
         </Space>
       )

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Card,
@@ -21,6 +21,9 @@ import {
   StarOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { Loading, ErrorMessage } from '../../components/common';
+import bookingService from '../../services/bookingService';
+import reviewService from '../../services/reviewService';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -30,25 +33,32 @@ const WriteReview = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [fetchingBooking, setFetchingBooking] = useState(true);
   const [rating, setRating] = useState(0);
+  const [booking, setBooking] = useState(null);
+  const [error, setError] = useState(null);
 
-  // Mock booking data - would be fetched from API
-  const booking = {
-    id: bookingId,
-    bookingCode: 'BK2024011501',
-    operator: 'Phương Trang',
-    operatorId: 'OPR001',
-    route: 'TP.HCM → Đà Lạt',
-    departureDate: '2024-01-15 06:00',
-    arrivalDate: '2024-01-15 13:00',
-    busType: 'Giường nằm',
-    busPlate: '51B-12345',
-    pickupPoint: 'Bến xe Miền Đông',
-    dropoffPoint: 'Bến xe Đà Lạt',
-    seats: ['A1', 'A2'],
-    totalAmount: 540000,
-    status: 'completed',
-    hasReview: false
+  useEffect(() => {
+    fetchBookingDetails();
+  }, [bookingId]);
+
+  const fetchBookingDetails = async () => {
+    try {
+      setFetchingBooking(true);
+      setError(null);
+
+      const response = await bookingService.getBookingDetails(bookingId);
+
+      if (response.success) {
+        setBooking(response.data.booking);
+      } else {
+        setError(response.message || 'Không thể tải thông tin đặt vé');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Đã có lỗi xảy ra');
+    } finally {
+      setFetchingBooking(false);
+    }
   };
 
   const ratingDescriptions = {
@@ -60,21 +70,48 @@ const WriteReview = () => {
   };
 
   const handleSubmit = async (values) => {
-    setLoading(true);
-    // TODO: Integrate with API
-    console.log('Review data:', {
-      bookingId: booking.id,
-      operatorId: booking.operatorId,
-      rating: values.rating,
-      comment: values.comment
-    });
+    try {
+      setLoading(true);
 
-    setTimeout(() => {
+      const response = await reviewService.createReview({
+        booking: booking._id,
+        trip: booking.trip._id,
+        operator: booking.operator._id,
+        rating: values.rating,
+        comment: values.comment
+      });
+
+      if (response.success) {
+        message.success('Đánh giá của bạn đã được gửi thành công!');
+        navigate('/customer/reviews');
+      } else {
+        message.error(response.message || 'Không thể gửi đánh giá');
+        setLoading(false);
+      }
+    } catch (err) {
+      message.error(err.response?.data?.message || 'Đã có lỗi xảy ra');
       setLoading(false);
-      message.success('Đánh giá của bạn đã được gửi thành công!');
-      navigate('/customer/reviews');
-    }, 1000);
+    }
   };
+
+  if (fetchingBooking) {
+    return <Loading tip="Đang tải thông tin đặt vé..." fullScreen />;
+  }
+
+  if (error || !booking) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ErrorMessage
+            message="Không thể tải thông tin đặt vé"
+            description={error || 'Vui lòng thử lại sau'}
+            showRetry
+            onRetry={fetchBookingDetails}
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (booking.hasReview) {
     return (
@@ -96,7 +133,7 @@ const WriteReview = () => {
     );
   }
 
-  if (booking.status !== 'completed') {
+  if (booking.bookingStatus !== 'confirmed' && booking.bookingStatus !== 'completed') {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -138,24 +175,26 @@ const WriteReview = () => {
             />
             <div className="flex-1">
               <Text strong className="block text-lg mb-1">
-                {booking.operator}
+                {booking.operator?.name || booking.operator}
               </Text>
               <Text className="block text-base mb-2">
-                {booking.route}
+                {booking.trip?.route?.from} → {booking.trip?.route?.to}
               </Text>
               <Space direction="vertical" size="small" className="text-sm text-gray-600">
                 <div>
-                  <CalendarOutlined /> Khởi hành: {dayjs(booking.departureDate).format('DD/MM/YYYY HH:mm')}
+                  <CalendarOutlined /> Khởi hành: {dayjs(booking.trip?.departureTime).format('DD/MM/YYYY HH:mm')}
                 </div>
                 <div>
-                  <EnvironmentOutlined /> {booking.pickupPoint} → {booking.dropoffPoint}
+                  <EnvironmentOutlined /> {booking.pickupPoint?.name || booking.pickupPoint} → {booking.dropOffPoint?.name || booking.dropOffPoint}
                 </div>
                 <div>
-                  <CarOutlined /> {booking.busType} - {booking.busPlate}
+                  <CarOutlined /> {booking.trip?.bus?.busType || 'N/A'} - {booking.trip?.bus?.licensePlate || 'N/A'}
                 </div>
                 <div>
-                  Ghế: {booking.seats.map(seat => (
-                    <Tag key={seat} color="blue" className="ml-1">{seat}</Tag>
+                  Ghế: {booking.seats?.map(seat => (
+                    <Tag key={typeof seat === 'object' ? seat._id : seat} color="blue" className="ml-1">
+                      {typeof seat === 'object' ? seat.seatNumber : seat}
+                    </Tag>
                   ))}
                 </div>
               </Space>

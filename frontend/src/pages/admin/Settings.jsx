@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   Tabs,
@@ -27,6 +27,7 @@ import {
   UploadOutlined,
   ReloadOutlined
 } from '@ant-design/icons';
+import settingsService from '../../services/settingsService';
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -41,7 +42,30 @@ const Settings = () => {
   const [notificationForm] = Form.useForm();
   const [securityForm] = Form.useForm();
 
-  // Mock initial data
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    setLoading(true);
+    try {
+      const settings = await settingsService.getSettings();
+
+      // Populate forms with fetched settings
+      if (settings.general) generalForm.setFieldsValue(settings.general);
+      if (settings.commission) commissionForm.setFieldsValue(settings.commission);
+      if (settings.email) emailForm.setFieldsValue(settings.email);
+      if (settings.notification) notificationForm.setFieldsValue(settings.notification);
+      if (settings.security) securityForm.setFieldsValue(settings.security);
+    } catch (error) {
+      message.error('Không thể tải cài đặt hệ thống');
+      console.error('Error fetching settings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Mock initial data (as fallback)
   const initialGeneralSettings = {
     systemName: 'Te_QuickRide',
     systemEmail: 'admin@tequickride.com',
@@ -96,59 +120,78 @@ const Settings = () => {
 
   const handleSaveGeneral = async (values) => {
     setLoading(true);
-    // TODO: Integrate with API
-    console.log('General settings:', values);
-    setTimeout(() => {
+    try {
+      await settingsService.updateSettings({ general: values });
       message.success('Đã lưu cài đặt chung');
+    } catch (error) {
+      message.error('Không thể lưu cài đặt');
+      console.error('Error saving general settings:', error);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleSaveCommission = async (values) => {
     setLoading(true);
-    // TODO: Integrate with API
-    console.log('Commission settings:', values);
-    setTimeout(() => {
+    try {
+      await settingsService.updateSettings({ commission: values });
       message.success('Đã lưu cài đặt hoa hồng');
+    } catch (error) {
+      message.error('Không thể lưu cài đặt');
+      console.error('Error saving commission settings:', error);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleSaveEmail = async (values) => {
     setLoading(true);
-    // TODO: Integrate with API
-    console.log('Email settings:', values);
-    setTimeout(() => {
+    try {
+      await settingsService.updateSettings({ email: values });
       message.success('Đã lưu cài đặt email');
+    } catch (error) {
+      message.error('Không thể lưu cài đặt');
+      console.error('Error saving email settings:', error);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleSaveNotification = async (values) => {
     setLoading(true);
-    // TODO: Integrate with API
-    console.log('Notification settings:', values);
-    setTimeout(() => {
+    try {
+      await settingsService.updateSettings({ notification: values });
       message.success('Đã lưu cài đặt thông báo');
+    } catch (error) {
+      message.error('Không thể lưu cài đặt');
+      console.error('Error saving notification settings:', error);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleSaveSecurity = async (values) => {
     setLoading(true);
-    // TODO: Integrate with API
-    console.log('Security settings:', values);
-    setTimeout(() => {
+    try {
+      await settingsService.updateSettings({ security: values });
       message.success('Đã lưu cài đặt bảo mật');
+    } catch (error) {
+      message.error('Không thể lưu cài đặt');
+      console.error('Error saving security settings:', error);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
-  const handleTestEmail = () => {
-    message.loading('Đang gửi email test...', 2);
-    setTimeout(() => {
+  const handleTestEmail = async () => {
+    try {
+      const emailValues = emailForm.getFieldsValue();
+      await settingsService.testEmail(emailValues.fromEmail);
       message.success('Đã gửi email test thành công!');
-    }, 2000);
+    } catch (error) {
+      message.error('Không thể gửi email test');
+      console.error('Error testing email:', error);
+    }
   };
 
   return (

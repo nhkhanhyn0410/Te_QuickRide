@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Card,
@@ -26,6 +26,8 @@ import {
   ClockCircleOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { Loading, ErrorMessage } from '../../components/common';
+import voucherService from '../../services/voucherService';
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -34,79 +36,50 @@ const MyVouchers = () => {
   const [activeTab, setActiveTab] = useState('available');
   const [addVoucherModal, setAddVoucherModal] = useState(false);
   const [voucherCode, setVoucherCode] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [vouchers, setVouchers] = useState([]);
+  const [error, setError] = useState(null);
 
-  // Mock user vouchers
-  const vouchers = [
-    {
-      id: 1,
-      code: 'TET2024',
-      title: 'Khuyến mãi Tết Nguyên Đán 2024',
-      description: 'Giảm 20% cho tất cả các tuyến dịp Tết',
-      type: 'percentage',
-      discount: 20,
-      maxDiscount: 100000,
-      minOrder: 200000,
-      startDate: '2024-02-10',
-      endDate: '2024-02-17',
-      status: 'available',
-      routes: ['all']
-    },
-    {
-      id: 2,
-      code: 'DALAT50K',
-      title: 'Giảm 50K tuyến Sài Gòn - Đà Lạt',
-      description: 'Giảm ngay 50.000đ cho tuyến TP.HCM - Đà Lạt',
-      type: 'fixed',
-      discount: 50000,
-      minOrder: 200000,
-      startDate: '2024-01-15',
-      endDate: '2024-02-15',
-      status: 'available',
-      routes: ['TP.HCM → Đà Lạt']
-    },
-    {
-      id: 3,
-      code: 'NEWUSER30',
-      title: 'Ưu đãi khách hàng mới',
-      description: 'Giảm 30% cho lần đặt vé đầu tiên',
-      type: 'percentage',
-      discount: 30,
-      maxDiscount: 80000,
-      minOrder: 150000,
-      startDate: '2024-01-01',
-      endDate: '2024-03-31',
-      status: 'used',
-      usedDate: '2024-01-12',
-      routes: ['all']
-    },
-    {
-      id: 4,
-      code: 'WEEKEND15',
-      title: 'Giảm giá cuối tuần',
-      description: 'Giảm 15% cho các chuyến xe cuối tuần',
-      type: 'percentage',
-      discount: 15,
-      maxDiscount: 50000,
-      minOrder: 100000,
-      startDate: '2024-01-20',
-      endDate: '2024-01-25',
-      status: 'expired',
-      routes: ['all']
-    },
-    {
-      id: 5,
-      code: 'MEKONG100K',
-      title: 'Khám phá miền Tây - Giảm 100K',
-      description: 'Giảm 100.000đ cho các tuyến đi miền Tây',
-      type: 'fixed',
-      discount: 100000,
-      minOrder: 300000,
-      startDate: '2024-01-10',
-      endDate: '2024-02-10',
-      status: 'available',
-      routes: ['TP.HCM → Cần Thơ', 'TP.HCM → An Giang']
+  useEffect(() => {
+    fetchVouchers();
+  }, []);
+
+  const fetchVouchers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await voucherService.getAvailableVouchers();
+
+      if (response.success) {
+        // Process vouchers and determine their status
+        const processedVouchers = (response.data.vouchers || []).map(voucher => {
+          const now = dayjs();
+          const endDate = dayjs(voucher.validTo);
+
+          let status = 'available';
+          if (now.isAfter(endDate)) {
+            status = 'expired';
+          }
+          // Note: We can't determine 'used' status from public vouchers
+          // This would need a separate endpoint for user's voucher usage
+
+          return {
+            ...voucher,
+            status
+          };
+        });
+
+        setVouchers(processedVouchers);
+      } else {
+        setError(response.message || 'Không thể tải danh sách voucher');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Đã có lỗi xảy ra');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const getTypeTag = (type) => {
     if (type === 'percentage') {
@@ -126,10 +99,10 @@ const MyVouchers = () => {
   };
 
   const getDiscountText = (voucher) => {
-    if (voucher.type === 'percentage') {
-      return `Giảm ${voucher.discount}%`;
+    if (voucher.discountType === 'percentage') {
+      return `Giảm ${voucher.discountValue}%`;
     }
-    return `Giảm ${voucher.discount.toLocaleString('vi-VN')}đ`;
+    return `Giảm ${voucher.discountValue.toLocaleString('vi-VN')}đ`;
   };
 
   const handleCopyCode = (code) => {
@@ -137,17 +110,26 @@ const MyVouchers = () => {
     message.success(`Đã sao chép mã ${code}`);
   };
 
-  const handleAddVoucher = () => {
+  const handleAddVoucher = async () => {
     if (!voucherCode.trim()) {
       message.error('Vui lòng nhập mã voucher');
       return;
     }
 
-    // TODO: Integrate with API
-    console.log('Adding voucher:', voucherCode);
-    message.success('Đã thêm voucher thành công!');
-    setVoucherCode('');
-    setAddVoucherModal(false);
+    try {
+      const response = await voucherService.getVoucherByCode(voucherCode);
+
+      if (response.success) {
+        message.success('Đã thêm voucher thành công!');
+        setVoucherCode('');
+        setAddVoucherModal(false);
+        fetchVouchers(); // Refresh the list
+      } else {
+        message.error(response.message || 'Mã voucher không hợp lệ');
+      }
+    } catch (err) {
+      message.error(err.response?.data?.message || 'Mã voucher không tồn tại hoặc đã hết hạn');
+    }
   };
 
   const filterVouchers = (status) => {
@@ -159,20 +141,20 @@ const MyVouchers = () => {
   const expiredVouchers = filterVouchers('expired');
 
   const renderVoucherCard = (voucher) => (
-    <Col xs={24} md={12} key={voucher.id}>
+    <Col xs={24} md={12} key={voucher._id}>
       <Card
         className={`shadow-md ${voucher.status === 'available' ? 'border-2 border-blue-500' : ''}`}
         hoverable={voucher.status === 'available'}
       >
         <div className="flex justify-between items-start mb-3">
           <div className="flex-1">
-            {getTypeTag(voucher.type)}
+            {getTypeTag(voucher.discountType)}
             {getStatusTag(voucher.status)}
           </div>
         </div>
 
         <Text strong className="block text-lg mb-2">
-          {voucher.title}
+          {voucher.name || voucher.title}
         </Text>
 
         <Paragraph className="text-gray-600 mb-3" ellipsis={{ rows: 2 }}>
@@ -190,9 +172,9 @@ const MyVouchers = () => {
           <Text className="text-2xl font-bold text-white block">
             {getDiscountText(voucher)}
           </Text>
-          {voucher.maxDiscount && voucher.type === 'percentage' && (
+          {voucher.maxDiscountAmount && voucher.discountType === 'percentage' && (
             <Text className="text-xs text-white">
-              Tối đa {voucher.maxDiscount.toLocaleString('vi-VN')}đ
+              Tối đa {voucher.maxDiscountAmount.toLocaleString('vi-VN')}đ
             </Text>
           )}
         </div>
@@ -218,13 +200,13 @@ const MyVouchers = () => {
         <Space direction="vertical" size="small" className="w-full text-sm">
           <div>
             <Text type="secondary">Đơn tối thiểu: </Text>
-            <Text strong>{voucher.minOrder.toLocaleString('vi-VN')}đ</Text>
+            <Text strong>{voucher.minimumOrderValue?.toLocaleString('vi-VN') || 0}đ</Text>
           </div>
 
           <div>
             <Text type="secondary">Tuyến áp dụng: </Text>
             <Text strong>
-              {voucher.routes[0] === 'all' ? 'Tất cả tuyến' : voucher.routes.join(', ')}
+              {!voucher.applicableRoutes || voucher.applicableRoutes.length === 0 ? 'Tất cả tuyến' : voucher.applicableRoutes.join(', ')}
             </Text>
           </div>
 
@@ -232,7 +214,7 @@ const MyVouchers = () => {
             <div className="flex items-center gap-1">
               <CalendarOutlined className="text-gray-400" />
               <Text type="secondary">
-                HSD: {dayjs(voucher.endDate).format('DD/MM/YYYY')}
+                HSD: {dayjs(voucher.validTo).format('DD/MM/YYYY')}
               </Text>
             </div>
           )}
@@ -247,7 +229,7 @@ const MyVouchers = () => {
           {voucher.status === 'expired' && (
             <div>
               <Text type="danger">
-                Đã hết hạn: {dayjs(voucher.endDate).format('DD/MM/YYYY')}
+                Đã hết hạn: {dayjs(voucher.validTo).format('DD/MM/YYYY')}
               </Text>
             </div>
           )}
@@ -263,6 +245,10 @@ const MyVouchers = () => {
       </Card>
     </Col>
   );
+
+  if (loading) {
+    return <Loading tip="Đang tải danh sách voucher..." fullScreen />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -286,6 +272,18 @@ const MyVouchers = () => {
             Thêm voucher
           </Button>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6">
+            <ErrorMessage
+              message="Không thể tải danh sách voucher"
+              description={error}
+              showRetry
+              onRetry={fetchVouchers}
+            />
+          </div>
+        )}
 
         {/* Quick Stats */}
         <Row gutter={[16, 16]} className="mb-6">

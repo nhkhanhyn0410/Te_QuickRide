@@ -35,6 +35,38 @@ export const tripService = {
     });
     return response.data;
   },
+
+  // Create trip (operator)
+  createTrip: async (tripData) => {
+    const response = await api.post('/trips', tripData);
+    return response.data;
+  },
+
+  // Get my trips (operator)
+  getMyTrips: async (params) => {
+    const response = await api.get('/trips/my/trips', { params });
+    return response.data;
+  },
+
+  // Update trip (operator)
+  updateTrip: async (tripId, tripData) => {
+    const response = await api.put(`/trips/${tripId}`, tripData);
+    return response.data;
+  },
+
+  // Cancel trip (operator)
+  cancelTrip: async (tripId, cancellationReason) => {
+    const response = await api.put(`/trips/${tripId}/cancel`, {
+      cancellationReason,
+    });
+    return response.data;
+  },
+
+  // Get all trips (operator)
+  getAllTrips: async (params) => {
+    const response = await api.get('/trips', { params });
+    return response.data;
+  },
 };
 
 export default tripService;

@@ -37,6 +37,7 @@ import {
   CloseCircleOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import userService from '../../services/userService';
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -53,137 +54,41 @@ const ManageUsers = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
+  const [usersData, setUsersData] = useState([]);
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    inactive: 0,
+    blocked: 0,
+    newThisMonth: 0
+  });
 
-  // Mock statistics
-  const stats = {
-    total: 12456,
-    active: 11234,
-    inactive: 1022,
-    blocked: 200,
-    newThisMonth: 1234
+  useEffect(() => {
+    fetchUsers();
+    fetchStats();
+  }, []);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const response = await userService.getAllUsers();
+      setUsersData(response.data || []);
+    } catch (error) {
+      message.error('Không thể tải danh sách người dùng');
+      console.error('Error fetching users:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Mock users data
-  const usersData = [
-    {
-      key: 1,
-      userId: 'USR001',
-      name: 'Nguyễn Văn An',
-      email: 'nguyenvanan@email.com',
-      phone: '0901234567',
-      role: 'customer',
-      status: 'active',
-      joinDate: '2023-08-15',
-      lastLogin: '2024-01-20 14:30',
-      totalBookings: 45,
-      totalSpent: 12500000,
-      loyaltyTier: 'Gold',
-      verified: true
-    },
-    {
-      key: 2,
-      userId: 'USR002',
-      name: 'Trần Thị Bình',
-      email: 'tranbinhtt@email.com',
-      phone: '0912345678',
-      role: 'customer',
-      status: 'active',
-      joinDate: '2023-09-20',
-      lastLogin: '2024-01-21 09:15',
-      totalBookings: 23,
-      totalSpent: 6800000,
-      loyaltyTier: 'Silver',
-      verified: true
-    },
-    {
-      key: 3,
-      userId: 'OPR001',
-      name: 'Phương Trang Express',
-      email: 'contact@phuongtrang.com',
-      phone: '1900 6067',
-      role: 'operator',
-      status: 'active',
-      joinDate: '2023-06-10',
-      lastLogin: '2024-01-21 08:00',
-      totalTrips: 456,
-      totalRevenue: 456000000,
-      rating: 4.8,
-      verified: true
-    },
-    {
-      key: 4,
-      userId: 'USR003',
-      name: 'Lê Hoàng Cường',
-      email: 'lehoangcuong@email.com',
-      phone: '0923456789',
-      role: 'customer',
-      status: 'inactive',
-      joinDate: '2024-01-05',
-      lastLogin: '2024-01-10 16:45',
-      totalBookings: 2,
-      totalSpent: 540000,
-      loyaltyTier: 'Bronze',
-      verified: false
-    },
-    {
-      key: 5,
-      userId: 'ADM001',
-      name: 'Admin User',
-      email: 'admin@tequickride.com',
-      phone: '0934567890',
-      role: 'admin',
-      status: 'active',
-      joinDate: '2023-05-01',
-      lastLogin: '2024-01-21 10:30',
-      verified: true
-    },
-    {
-      key: 6,
-      userId: 'USR004',
-      name: 'Phạm Thu Dung',
-      email: 'phamthudung@email.com',
-      phone: '0945678901',
-      role: 'customer',
-      status: 'blocked',
-      joinDate: '2023-10-12',
-      lastLogin: '2024-01-15 11:20',
-      totalBookings: 12,
-      totalSpent: 3200000,
-      loyaltyTier: 'Bronze',
-      verified: true,
-      blockReason: 'Vi phạm chính sách hủy vé'
-    },
-    {
-      key: 7,
-      userId: 'OPR002',
-      name: 'Mai Linh Bus',
-      email: 'contact@mailinh.com',
-      phone: '1900 6056',
-      role: 'operator',
-      status: 'active',
-      joinDate: '2023-07-15',
-      lastLogin: '2024-01-21 07:30',
-      totalTrips: 389,
-      totalRevenue: 398000000,
-      rating: 4.6,
-      verified: true
-    },
-    {
-      key: 8,
-      userId: 'USR005',
-      name: 'Võ Minh Tuấn',
-      email: 'vominhtuan@email.com',
-      phone: '0956789012',
-      role: 'customer',
-      status: 'active',
-      joinDate: '2023-11-20',
-      lastLogin: '2024-01-19 18:00',
-      totalBookings: 18,
-      totalSpent: 5400000,
-      loyaltyTier: 'Silver',
-      verified: true
+  const fetchStats = async () => {
+    try {
+      const response = await userService.getUserStatistics();
+      setStats(response || stats);
+    } catch (error) {
+      console.error('Error fetching user stats:', error);
     }
-  ];
+  };
 
   const getRoleTag = (role) => {
     const roleConfig = {
@@ -399,6 +304,11 @@ const ManageUsers = () => {
     }
   ];
 
+  const handleRefresh = () => {
+    fetchUsers();
+    fetchStats();
+  };
+
   const handleViewDetail = (user) => {
     setSelectedUser(user);
     setDetailModal(true);
@@ -411,31 +321,40 @@ const ManageUsers = () => {
   };
 
   const handleBlockUser = async (userId) => {
-    setLoading(true);
-    // TODO: Integrate with API
-    setTimeout(() => {
-      message.success(`Đã khóa người dùng ${userId}`);
-      setLoading(false);
-    }, 1000);
+    try {
+      await userService.blockUser(userId, 'Khóa bởi admin');
+      message.success('Đã khóa người dùng');
+      fetchUsers(); // Refresh list
+    } catch (error) {
+      message.error('Không thể khóa người dùng');
+      console.error('Error blocking user:', error);
+    }
   };
 
   const handleUnblockUser = async (userId) => {
-    setLoading(true);
-    // TODO: Integrate with API
-    setTimeout(() => {
-      message.success(`Đã mở khóa người dùng ${userId}`);
-      setLoading(false);
-    }, 1000);
+    try {
+      await userService.unblockUser(userId);
+      message.success('Đã mở khóa người dùng');
+      fetchUsers(); // Refresh list
+    } catch (error) {
+      message.error('Không thể mở khóa người dùng');
+      console.error('Error unblocking user:', error);
+    }
   };
 
   const handleSaveEdit = async (values) => {
     setLoading(true);
-    // TODO: Integrate with API
-    setTimeout(() => {
+    try {
+      await userService.updateUser(selectedUser._id, values);
       message.success('Đã cập nhật thông tin người dùng');
       setEditModal(false);
+      fetchUsers(); // Refresh list
+    } catch (error) {
+      message.error('Không thể cập nhật thông tin');
+      console.error('Error updating user:', error);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleExport = () => {
@@ -544,7 +463,7 @@ const ManageUsers = () => {
               <Option value="inactive">Không hoạt động</Option>
               <Option value="blocked">Bị khóa</Option>
             </Select>
-            <Button icon={<ReloadOutlined />} onClick={() => setLoading(!loading)}>
+            <Button icon={<ReloadOutlined />} onClick={handleRefresh}>
               Làm mới
             </Button>
             <Button icon={<DownloadOutlined />} onClick={handleExport}>
@@ -558,6 +477,7 @@ const ManageUsers = () => {
           <Table
             columns={columns}
             dataSource={filteredData}
+            rowKey="_id"
             scroll={{ x: 1600 }}
             pagination={{
               pageSize: 10,

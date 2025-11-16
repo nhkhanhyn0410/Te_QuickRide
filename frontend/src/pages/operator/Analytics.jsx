@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import analyticsService from '../../services/analyticsService';
 import {
   Card,
   Row,
@@ -10,7 +11,8 @@ import {
   Select,
   Table,
   Progress,
-  Tag
+  Tag,
+  message
 } from 'antd';
 import {
   DollarOutlined,
@@ -34,9 +36,8 @@ const Analytics = () => {
     dayjs()
   ]);
   const [selectedRoute, setSelectedRoute] = useState('all');
-
-  // Mock statistics
-  const stats = {
+  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState({
     totalRevenue: 456789000,
     revenueGrowth: 18.5,
     totalBookings: 1234,
@@ -47,10 +48,43 @@ const Analytics = () => {
     priceGrowth: 5.3,
     occupancyRate: 78.5,
     cancellationRate: 5.2
+  });
+  const [revenueByRoute, setRevenueByRoute] = useState([]);
+  const [revenueByBusType, setRevenueByBusType] = useState([]);
+  const [dailyRevenue, setDailyRevenue] = useState([]);
+  const [peakHours, setPeakHours] = useState([]);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [dateRange, selectedRoute]);
+
+  const fetchAnalytics = async () => {
+    setLoading(true);
+    try {
+      const params = {
+        startDate: dateRange[0].toISOString(),
+        endDate: dateRange[1].toISOString(),
+        routeId: selectedRoute !== 'all' ? selectedRoute : undefined
+      };
+
+      const response = await analyticsService.getDashboardStats(params);
+      const data = response.data || {};
+
+      setStats(data.stats || stats);
+      setRevenueByRoute(data.revenueByRoute || []);
+      setRevenueByBusType(data.revenueByBusType || []);
+      setDailyRevenue(data.dailyRevenue || []);
+      setPeakHours(data.peakHours || []);
+    } catch (error) {
+      message.error('Không thể tải dữ liệu phân tích');
+      console.error('Error fetching analytics:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Revenue by route
-  const revenueByRoute = [
+  // Backup mock data for development
+  const mockRevenueByRoute = [
     {
       key: 1,
       route: 'TP.HCM → Đà Lạt',
@@ -91,51 +125,6 @@ const Analytics = () => {
       occupancy: 68.2,
       trend: 'up'
     }
-  ];
-
-  // Revenue by bus type
-  const revenueByBusType = [
-    {
-      type: 'Giường nằm',
-      revenue: 256000000,
-      percentage: 56,
-      bookings: 678,
-      avgPrice: 377582
-    },
-    {
-      type: 'Ghế ngồi',
-      revenue: 145000000,
-      percentage: 32,
-      bookings: 892,
-      avgPrice: 162556
-    },
-    {
-      type: 'Limousine',
-      revenue: 55789000,
-      percentage: 12,
-      bookings: 123,
-      avgPrice: 453577
-    }
-  ];
-
-  // Daily revenue trend (last 7 days)
-  const dailyRevenue = [
-    { date: '15/01', revenue: 12500000, bookings: 45 },
-    { date: '16/01', revenue: 15200000, bookings: 56 },
-    { date: '17/01', revenue: 13800000, bookings: 48 },
-    { date: '18/01', revenue: 18900000, bookings: 67 },
-    { date: '19/01', revenue: 16700000, bookings: 59 },
-    { date: '20/01', revenue: 21300000, bookings: 78 },
-    { date: '21/01', revenue: 19600000, bookings: 71 }
-  ];
-
-  // Peak hours
-  const peakHours = [
-    { hour: '06:00 - 09:00', bookings: 456, percentage: 37 },
-    { hour: '09:00 - 12:00', bookings: 234, percentage: 19 },
-    { hour: '12:00 - 15:00', bookings: 178, percentage: 14 },
-    { hour: '15:00 - 18:00', bookings: 289, percentage: 23 },
-    { hour: '18:00 - 21:00', bookings: 87, percentage: 7 }
   ];
 
   const routeColumns = [
@@ -204,9 +193,28 @@ const Analytics = () => {
     }
   ];
 
-  const handleExport = () => {
-    // TODO: Implement export to Excel
-    console.log('Exporting data...');
+  const handleExport = async () => {
+    try {
+      message.loading('Đang xuất dữ liệu...', 0);
+      const params = {
+        startDate: dateRange[0].toISOString(),
+        endDate: dateRange[1].toISOString(),
+        routeId: selectedRoute !== 'all' ? selectedRoute : undefined
+      };
+
+      const blob = await analyticsService.exportAnalytics('dashboard', params);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `analytics-${dayjs().format('YYYY-MM-DD')}.xlsx`;
+      link.click();
+      message.destroy();
+      message.success('Đã xuất dữ liệu thành công');
+    } catch (error) {
+      message.destroy();
+      message.error('Không thể xuất dữ liệu');
+      console.error('Error exporting analytics:', error);
+    }
   };
 
   return (

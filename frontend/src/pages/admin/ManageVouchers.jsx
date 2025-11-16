@@ -32,6 +32,7 @@ import {
   ShopOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import voucherService from '../../services/voucherService';
 
 const { Title, Text } = Typography;
 import { Typography } from 'antd';
@@ -47,21 +48,47 @@ const ManageVouchers = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+  const [vouchers, setVouchers] = useState([]);
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    scheduled: 0,
+    expired: 0,
+    systemVouchers: 0,
+    operatorVouchers: 0,
+    totalUsed: 0,
+    totalDiscount: 0
+  });
 
-  // Mock statistics
-  const stats = {
-    total: 25,
-    active: 12,
-    scheduled: 5,
-    expired: 8,
-    systemVouchers: 10,
-    operatorVouchers: 15,
-    totalUsed: 5678,
-    totalDiscount: 1250000000
+  useEffect(() => {
+    fetchVouchers();
+    fetchStats();
+  }, []);
+
+  const fetchVouchers = async () => {
+    setLoading(true);
+    try {
+      const response = await voucherService.getAllVouchers();
+      setVouchers(response.data || []);
+    } catch (error) {
+      message.error('Không thể tải danh sách voucher');
+      console.error('Error fetching vouchers:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Mock vouchers data
-  const vouchers = [
+  const fetchStats = async () => {
+    try {
+      // Assuming voucher statistics endpoint exists
+      const response = await voucherService.getVoucherStatistics();
+      setStats(response || stats);
+    } catch (error) {
+      console.error('Error fetching voucher stats:', error);
+    }
+  };
+
+  const vouchersOld = [
     {
       id: 1,
       code: 'TET2024',
@@ -325,47 +352,59 @@ const ManageVouchers = () => {
   };
 
   const handleDelete = async (id) => {
-    setLoading(true);
-    // TODO: Integrate with API
-    setTimeout(() => {
+    try {
+      await voucherService.deleteVoucher(id);
       message.success('Đã xóa voucher');
-      setLoading(false);
-    }, 1000);
+      fetchVouchers(); // Refresh list
+    } catch (error) {
+      message.error('Không thể xóa voucher');
+      console.error('Error deleting voucher:', error);
+    }
   };
 
   const handleSubmitCreate = async (values) => {
     setLoading(true);
-    // TODO: Integrate with API
-    const data = {
-      ...values,
-      startDate: values.period[0].format('YYYY-MM-DD'),
-      endDate: values.period[1].format('YYYY-MM-DD')
-    };
-    console.log('Creating voucher:', data);
+    try {
+      const data = {
+        ...values,
+        startDate: values.period[0].format('YYYY-MM-DD'),
+        endDate: values.period[1].format('YYYY-MM-DD')
+      };
+      delete data.period;
 
-    setTimeout(() => {
+      await voucherService.createVoucher(data);
       message.success('Đã tạo voucher mới');
       setCreateModal(false);
-      setLoading(false);
       form.resetFields();
-    }, 1000);
+      fetchVouchers(); // Refresh list
+    } catch (error) {
+      message.error('Không thể tạo voucher');
+      console.error('Error creating voucher:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmitEdit = async (values) => {
     setLoading(true);
-    // TODO: Integrate with API
-    const data = {
-      ...values,
-      startDate: values.period[0].format('YYYY-MM-DD'),
-      endDate: values.period[1].format('YYYY-MM-DD')
-    };
-    console.log('Updating voucher:', selectedVoucher.id, data);
+    try {
+      const data = {
+        ...values,
+        startDate: values.period[0].format('YYYY-MM-DD'),
+        endDate: values.period[1].format('YYYY-MM-DD')
+      };
+      delete data.period;
 
-    setTimeout(() => {
+      await voucherService.updateVoucher(selectedVoucher._id, data);
       message.success('Đã cập nhật voucher');
       setEditModal(false);
+      fetchVouchers(); // Refresh list
+    } catch (error) {
+      message.error('Không thể cập nhật voucher');
+      console.error('Error updating voucher:', error);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const filterVouchers = (scope) => {

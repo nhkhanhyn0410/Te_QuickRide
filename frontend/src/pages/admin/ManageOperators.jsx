@@ -24,6 +24,7 @@ import {
   StopOutlined,
   PlayCircleOutlined
 } from '@ant-design/icons';
+import operatorService from '../../services/operatorService';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -52,70 +53,11 @@ const ManageOperators = () => {
   const fetchOperators = async () => {
     setLoading(true);
     try {
-      // TODO: Integrate with API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Mock data
-      const mockOperators = [
-        {
-          id: 'op1',
-          name: 'Nhà xe Phương Trang',
-          email: 'phuongtrang@example.com',
-          phone: '1900 6067',
-          businessLicense: 'GPKD 0123456789',
-          taxCode: 'MST 0123456789',
-          address: '272 Đề Thám, Q.1, TP.HCM',
-          verificationStatus: 'approved',
-          isActive: true,
-          isSuspended: false,
-          rating: 4.8,
-          totalTrips: 1234,
-          totalRevenue: 456789000,
-          totalBookings: 5678,
-          submittedAt: '2024-01-01',
-          verifiedAt: '2024-01-05'
-        },
-        {
-          id: 'op2',
-          name: 'Nhà xe Hoàng Long',
-          email: 'hoanglong@example.com',
-          phone: '0901234567',
-          businessLicense: 'GPKD 9876543210',
-          taxCode: 'MST 9876543210',
-          address: '123 Nguyễn Huệ, Q.1, TP.HCM',
-          verificationStatus: 'pending',
-          isActive: false,
-          isSuspended: false,
-          rating: 0,
-          totalTrips: 0,
-          totalRevenue: 0,
-          totalBookings: 0,
-          submittedAt: '2024-01-15',
-          verifiedAt: null
-        },
-        {
-          id: 'op3',
-          name: 'Nhà xe Mai Linh',
-          email: 'mailinh@example.com',
-          phone: '0912345678',
-          businessLicense: 'GPKD 1122334455',
-          taxCode: 'MST 1122334455',
-          address: '456 Lê Lợi, Q.1, TP.HCM',
-          verificationStatus: 'approved',
-          isActive: true,
-          isSuspended: true,
-          rating: 4.5,
-          totalTrips: 567,
-          totalRevenue: 234567000,
-          totalBookings: 2345,
-          submittedAt: '2023-12-01',
-          verifiedAt: '2023-12-05'
-        }
-      ];
-
-      setOperators(mockOperators);
+      const response = await operatorService.getAllOperators();
+      setOperators(response.data || []);
     } catch (error) {
       message.error('Không thể tải danh sách nhà xe');
+      console.error('Error fetching operators:', error);
     } finally {
       setLoading(false);
     }
@@ -161,18 +103,12 @@ const ManageOperators = () => {
       cancelText: 'Hủy',
       onOk: async () => {
         try {
-          // TODO: Integrate with API
-          await new Promise(resolve => setTimeout(resolve, 500));
-          setOperators(
-            operators.map(op =>
-              op.id === operator.id
-                ? { ...op, verificationStatus: 'approved', isActive: true, verifiedAt: new Date().toISOString() }
-                : op
-            )
-          );
+          await operatorService.approveOperator(operator._id);
           message.success('Đã duyệt nhà xe thành công');
+          fetchOperators(); // Refresh list
         } catch (error) {
-          message.error('Có lỗi xảy ra');
+          message.error('Có lỗi xảy ra khi duyệt nhà xe');
+          console.error('Error approving operator:', error);
         }
       }
     });
@@ -213,25 +149,26 @@ const ManageOperators = () => {
   };
 
   const handleSuspend = (operator) => {
+    const action = operator.isSuspended ? 'gỡ khóa' : 'khóa';
     Modal.confirm({
       title: operator.isSuspended ? 'Gỡ khóa nhà xe' : 'Khóa nhà xe',
-      content: `Bạn có chắc muốn ${operator.isSuspended ? 'gỡ khóa' : 'khóa'} nhà xe "${operator.name}"?`,
+      content: `Bạn có chắc muốn ${action} nhà xe "${operator.name}"?`,
       okText: operator.isSuspended ? 'Gỡ khóa' : 'Khóa',
       okButtonProps: { danger: !operator.isSuspended },
       cancelText: 'Hủy',
       onOk: async () => {
         try {
-          await new Promise(resolve => setTimeout(resolve, 500));
-          setOperators(
-            operators.map(op =>
-              op.id === operator.id
-                ? { ...op, isSuspended: !op.isSuspended }
-                : op
-            )
-          );
-          message.success(`Đã ${operator.isSuspended ? 'gỡ khóa' : 'khóa'} nhà xe`);
+          if (!operator.isSuspended) {
+            await operatorService.suspendOperator(operator._id, 'Khóa bởi admin');
+          } else {
+            // Unsuspend - may need a separate endpoint or use update
+            await operatorService.updateOperator(operator._id, { isSuspended: false });
+          }
+          message.success(`Đã ${action} nhà xe`);
+          fetchOperators(); // Refresh list
         } catch (error) {
           message.error('Có lỗi xảy ra');
+          console.error('Error suspending operator:', error);
         }
       }
     });
@@ -479,7 +416,7 @@ const ManageOperators = () => {
           <Table
             columns={columns}
             dataSource={filteredOperators}
-            rowKey="id"
+            rowKey="_id"
             loading={loading}
             pagination={{
               pageSize: 10,

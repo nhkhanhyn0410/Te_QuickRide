@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import operatorService from '../../services/operatorService';
 import {
   Card,
   Tabs,
@@ -35,7 +36,7 @@ const { Option } = Select;
 const OperatorProfile = () => {
   const [loading, setLoading] = useState(false);
   const [logoUrl, setLogoUrl] = useState('');
-  const [companyInfo] = useState({
+  const [companyInfo, setCompanyInfo] = useState({
     name: 'Nhà xe Phương Trang',
     email: 'phuongtrang@example.com',
     phone: '1900 6067',
@@ -61,15 +62,31 @@ const OperatorProfile = () => {
     totalRevenue: 456789000
   });
 
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    setLoading(true);
+    try {
+      const response = await operatorService.getMyProfile();
+      setCompanyInfo(response.data || companyInfo);
+    } catch (error) {
+      message.error('Không thể tải thông tin nhà xe');
+      console.error('Error fetching profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleUpdateCompanyInfo = async (values) => {
     setLoading(true);
     try {
-      // TODO: Integrate with API
-      console.log('Update company info:', values);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await operatorService.updateProfile(values);
       message.success('Cập nhật thông tin thành công!');
+      fetchProfile(); // Refresh profile
     } catch (error) {
-      message.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      message.error(error.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -78,11 +95,11 @@ const OperatorProfile = () => {
   const handleUpdateAddress = async (values) => {
     setLoading(true);
     try {
-      console.log('Update address:', values);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await operatorService.updateProfile({ address: values });
       message.success('Cập nhật địa chỉ thành công!');
+      fetchProfile(); // Refresh profile
     } catch (error) {
-      message.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      message.error(error.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -91,11 +108,11 @@ const OperatorProfile = () => {
   const handleUpdateBankAccount = async (values) => {
     setLoading(true);
     try {
-      console.log('Update bank account:', values);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await operatorService.updateProfile({ bankAccount: values });
       message.success('Cập nhật tài khoản ngân hàng thành công!');
+      fetchProfile(); // Refresh profile
     } catch (error) {
-      message.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      message.error(error.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }

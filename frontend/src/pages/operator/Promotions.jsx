@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import voucherService from '../../services/voucherService';
 import {
   Card,
   Table,
@@ -43,19 +44,52 @@ const Promotions = () => {
   const [selectedPromo, setSelectedPromo] = useState(null);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [promotions, setPromotions] = useState([]);
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    scheduled: 0,
+    expired: 0,
+    totalUsed: 0,
+    totalRevenue: 0
+  });
 
-  // Mock statistics
-  const stats = {
-    total: 12,
-    active: 5,
-    scheduled: 3,
-    expired: 4,
-    totalUsed: 1456,
-    totalRevenue: 456000000
+  useEffect(() => {
+    fetchPromotions();
+  }, []);
+
+  const fetchPromotions = async () => {
+    setLoading(true);
+    try {
+      const response = await voucherService.getAllVouchers();
+      const vouchers = response.data || [];
+      setPromotions(vouchers);
+
+      // Calculate statistics
+      const now = new Date();
+      const newStats = {
+        total: vouchers.length,
+        active: vouchers.filter(v =>
+          v.status === 'active' &&
+          new Date(v.startDate) <= now &&
+          new Date(v.endDate) >= now
+        ).length,
+        scheduled: vouchers.filter(v => new Date(v.startDate) > now).length,
+        expired: vouchers.filter(v => new Date(v.endDate) < now || v.status === 'expired').length,
+        totalUsed: vouchers.reduce((sum, v) => sum + (v.used || 0), 0),
+        totalRevenue: vouchers.reduce((sum, v) => sum + ((v.used || 0) * (v.discount || 0)), 0)
+      };
+      setStats(newStats);
+    } catch (error) {
+      message.error('Không thể tải danh sách khuyến mãi');
+      console.error('Error fetching promotions:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Mock promotions data
-  const promotions = [
+  // Backup mock data for development
+  const mockPromotions = [
     {
       id: 1,
       code: 'DALAT50K',
@@ -286,46 +320,71 @@ const Promotions = () => {
 
   const handleDelete = async (id) => {
     setLoading(true);
-    // TODO: Integrate with API
-    setTimeout(() => {
+    try {
+      await voucherService.deleteVoucher(id);
       message.success('Đã xóa khuyến mãi');
+      fetchPromotions(); // Refresh data
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Không thể xóa khuyến mãi');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleSubmitCreate = async (values) => {
     setLoading(true);
-    // TODO: Integrate with API
-    const data = {
-      ...values,
-      startDate: values.period[0].format('YYYY-MM-DD'),
-      endDate: values.period[1].format('YYYY-MM-DD')
-    };
-    console.log('Creating promotion:', data);
+    try {
+      const voucherData = {
+        code: values.code,
+        title: values.title,
+        description: values.description,
+        discountType: values.type,
+        discountValue: values.discount,
+        maxDiscount: values.maxDiscount,
+        minOrderValue: values.minOrder,
+        quantity: values.quantity,
+        startDate: values.period[0].toISOString(),
+        endDate: values.period[1].toISOString(),
+        applicableRoutes: values.routes
+      };
 
-    setTimeout(() => {
+      await voucherService.createVoucher(voucherData);
       message.success('Đã tạo khuyến mãi mới');
       setCreateModal(false);
-      setLoading(false);
       form.resetFields();
-    }, 1000);
+      fetchPromotions(); // Refresh data
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Không thể tạo khuyến mãi');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmitEdit = async (values) => {
     setLoading(true);
-    // TODO: Integrate with API
-    const data = {
-      ...values,
-      startDate: values.period[0].format('YYYY-MM-DD'),
-      endDate: values.period[1].format('YYYY-MM-DD')
-    };
-    console.log('Updating promotion:', selectedPromo.id, data);
+    try {
+      const voucherData = {
+        title: values.title,
+        description: values.description,
+        discountType: values.type,
+        discountValue: values.discount,
+        maxDiscount: values.maxDiscount,
+        minOrderValue: values.minOrder,
+        quantity: values.quantity,
+        startDate: values.period[0].toISOString(),
+        endDate: values.period[1].toISOString(),
+        applicableRoutes: values.routes
+      };
 
-    setTimeout(() => {
+      await voucherService.updateVoucher(selectedPromo._id || selectedPromo.id, voucherData);
       message.success('Đã cập nhật khuyến mãi');
       setEditModal(false);
+      fetchPromotions(); // Refresh data
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Không thể cập nhật khuyến mãi');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (

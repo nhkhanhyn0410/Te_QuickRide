@@ -13,6 +13,12 @@ export const authService = {
     return response.data;
   },
 
+  // Operator Login
+  operatorLogin: async (credentials) => {
+    const response = await api.post('/auth/operator/login', credentials);
+    return response.data;
+  },
+
   // Logout
   logout: async () => {
     const response = await api.post('/auth/logout');

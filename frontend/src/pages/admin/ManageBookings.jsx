@@ -33,6 +33,8 @@ import {
   CarOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import bookingService from '../../services/bookingService';
+import analyticsService from '../../services/analyticsService';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -47,105 +49,41 @@ const ManageBookings = () => {
   const [detailDrawer, setDetailDrawer] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [bookingsData, setBookingsData] = useState([]);
+  const [stats, setStats] = useState({
+    total: 0,
+    confirmed: 0,
+    pending: 0,
+    cancelled: 0,
+    revenue: 0
+  });
 
-  // Mock statistics
-  const stats = {
-    total: 12567,
-    confirmed: 10234,
-    pending: 1456,
-    cancelled: 877,
-    revenue: 3456000000
+  useEffect(() => {
+    fetchBookings();
+    fetchStats();
+  }, []);
+
+  const fetchBookings = async () => {
+    setLoading(true);
+    try {
+      const response = await bookingService.getAllBookings();
+      setBookingsData(response.data || []);
+    } catch (error) {
+      message.error('Không thể tải danh sách booking');
+      console.error('Error fetching bookings:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Mock bookings data
-  const bookingsData = [
-    {
-      key: 1,
-      bookingCode: 'BK2024011501',
-      customerName: 'Nguyễn Văn An',
-      customerPhone: '0901234567',
-      customerEmail: 'nguyenvanan@email.com',
-      operator: 'Phương Trang',
-      route: 'TP.HCM → Đà Lạt',
-      departureTime: '2024-01-20 06:00',
-      busType: 'Giường nằm',
-      busPlate: '51B-12345',
-      seats: ['A1', 'A2'],
-      seatCount: 2,
-      totalAmount: 540000,
-      status: 'confirmed',
-      paymentStatus: 'paid',
-      paymentMethod: 'VNPay',
-      bookingDate: '2024-01-15 14:30',
-      pickupPoint: 'Bến xe Miền Đông',
-      dropoffPoint: 'Bến xe Đà Lạt'
-    },
-    {
-      key: 2,
-      bookingCode: 'BK2024011502',
-      customerName: 'Trần Thị Bình',
-      customerPhone: '0912345678',
-      customerEmail: 'tranbinhtt@email.com',
-      operator: 'Mai Linh',
-      route: 'TP.HCM → Cần Thơ',
-      departureTime: '2024-01-20 08:30',
-      busType: 'Ghế ngồi',
-      busPlate: '51B-67890',
-      seats: ['B5'],
-      seatCount: 1,
-      totalAmount: 150000,
-      status: 'confirmed',
-      paymentStatus: 'paid',
-      paymentMethod: 'MoMo',
-      bookingDate: '2024-01-15 16:45',
-      pickupPoint: 'Bến xe Miền Tây',
-      dropoffPoint: 'Bến xe Cần Thơ'
-    },
-    {
-      key: 3,
-      bookingCode: 'BK2024011503',
-      customerName: 'Lê Hoàng Cường',
-      customerPhone: '0923456789',
-      customerEmail: 'lehoangcuong@email.com',
-      operator: 'Kumho Samco',
-      route: 'Hà Nội → Hải Phòng',
-      departureTime: '2024-01-21 14:00',
-      busType: 'Limousine',
-      busPlate: '29A-11111',
-      seats: ['L1', 'L2', 'L3'],
-      seatCount: 3,
-      totalAmount: 1350000,
-      status: 'pending',
-      paymentStatus: 'pending',
-      paymentMethod: null,
-      bookingDate: '2024-01-15 18:20',
-      pickupPoint: 'Bến xe Giáp Bát',
-      dropoffPoint: 'Bến xe Niệm Nghĩa'
-    },
-    {
-      key: 4,
-      bookingCode: 'BK2024011504',
-      customerName: 'Phạm Thu Dung',
-      customerPhone: '0934567890',
-      customerEmail: 'phamthudung@email.com',
-      operator: 'Hoàng Long',
-      route: 'TP.HCM → Vũng Tàu',
-      departureTime: '2024-01-19 07:00',
-      busType: 'Giường nằm',
-      busPlate: '51B-22222',
-      seats: ['C3'],
-      seatCount: 1,
-      totalAmount: 180000,
-      status: 'cancelled',
-      paymentStatus: 'refunded',
-      paymentMethod: 'VNPay',
-      bookingDate: '2024-01-14 10:15',
-      pickupPoint: 'Bến xe Miền Đông',
-      dropoffPoint: 'Bến xe Vũng Tàu',
-      cancellationReason: 'Khách hủy do thay đổi lịch trình',
-      cancelledAt: '2024-01-16 09:30'
+  const fetchStats = async () => {
+    try {
+      const response = await analyticsService.getBookingAnalytics();
+      setStats(response || stats);
+    } catch (error) {
+      console.error('Error fetching booking stats:', error);
     }
-  ];
+  };
 
   const getStatusTag = (status) => {
     const statusConfig = {
@@ -298,12 +236,33 @@ const ManageBookings = () => {
   };
 
   const handleRefresh = () => {
-    setLoading(true);
-    // TODO: Fetch fresh data from API
-    setTimeout(() => {
-      message.success('Đã làm mới dữ liệu');
-      setLoading(false);
-    }, 1000);
+    fetchBookings();
+    fetchStats();
+    message.success('Đã làm mới dữ liệu');
+  };
+
+  const handleExportReal = async () => {
+    try {
+      const blob = await analyticsService.exportAnalytics('bookings', {
+        startDate: dateRange?.[0]?.format('YYYY-MM-DD'),
+        endDate: dateRange?.[1]?.format('YYYY-MM-DD'),
+        status: selectedStatus !== 'all' ? selectedStatus : undefined
+      });
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `bookings_${dayjs().format('YYYYMMDD')}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      message.success('Đã xuất dữ liệu thành công');
+    } catch (error) {
+      message.error('Không thể xuất dữ liệu');
+      console.error('Error exporting bookings:', error);
+    }
   };
 
   const filteredData = bookingsData.filter(booking => {
@@ -428,7 +387,7 @@ const ManageBookings = () => {
             </Button>
             <Button
               icon={<DownloadOutlined />}
-              onClick={handleExport}
+              onClick={handleExportReal}
             >
               Xuất Excel
             </Button>
@@ -440,6 +399,7 @@ const ManageBookings = () => {
           <Table
             columns={columns}
             dataSource={filteredData}
+            rowKey="_id"
             scroll={{ x: 1600 }}
             pagination={{
               pageSize: 15,

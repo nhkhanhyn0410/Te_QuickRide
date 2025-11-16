@@ -25,6 +25,7 @@ import {
   CalendarOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import tripService from '../../services/tripService';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -52,58 +53,11 @@ const ManageTrips = () => {
   const fetchTrips = async () => {
     setLoading(true);
     try {
-      // TODO: Integrate with API
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Mock data
-      const mockTrips = [
-        {
-          id: 'trip1',
-          tripCode: 'TR001',
-          route: {
-            origin: { city: 'TP. Hồ Chí Minh' },
-            destination: { city: 'Đà Lạt' }
-          },
-          bus: { busNumber: '51B-12345', type: 'Giường nằm', totalSeats: 40 },
-          departureTime: dayjs().add(3, 'day').hour(8).minute(0).toISOString(),
-          basePrice: 250000,
-          availableSeats: 12,
-          bookedSeats: 28,
-          status: 'scheduled'
-        },
-        {
-          id: 'trip2',
-          tripCode: 'TR002',
-          route: {
-            origin: { city: 'TP. Hồ Chí Minh' },
-            destination: { city: 'Cần Thơ' }
-          },
-          bus: { busNumber: '51B-67890', type: 'Ghế ngồi', totalSeats: 45 },
-          departureTime: dayjs().add(1, 'day').hour(14).minute(0).toISOString(),
-          basePrice: 150000,
-          availableSeats: 5,
-          bookedSeats: 40,
-          status: 'boarding'
-        },
-        {
-          id: 'trip3',
-          tripCode: 'TR003',
-          route: {
-            origin: { city: 'Hà Nội' },
-            destination: { city: 'Hải Phòng' }
-          },
-          bus: { busNumber: '29A-11111', type: 'Limousine', totalSeats: 24 },
-          departureTime: dayjs().subtract(1, 'day').hour(10).minute(0).toISOString(),
-          basePrice: 180000,
-          availableSeats: 0,
-          bookedSeats: 24,
-          status: 'completed'
-        }
-      ];
-
-      setTrips(mockTrips);
+      const response = await tripService.getMyTrips();
+      setTrips(response.data || []);
     } catch (error) {
       message.error('Không thể tải danh sách chuyến đi');
+      console.error('Error fetching trips:', error);
     } finally {
       setLoading(false);
     }
@@ -162,19 +116,18 @@ const ManageTrips = () => {
 
   const handleDeleteTrip = (trip) => {
     Modal.confirm({
-      title: 'Xác nhận xóa chuyến đi',
-      content: `Bạn có chắc muốn xóa chuyến ${trip.tripCode}?`,
-      okText: 'Xóa',
-      cancelText: 'Hủy',
+      title: 'Xác nhận hủy chuyến đi',
+      content: `Bạn có chắc muốn hủy chuyến ${trip.tripCode}?`,
+      okText: 'Hủy chuyến',
+      cancelText: 'Đóng',
       okButtonProps: { danger: true },
       onOk: async () => {
         try {
-          // TODO: Integrate with API
-          await new Promise(resolve => setTimeout(resolve, 500));
-          setTrips(trips.filter(t => t.id !== trip.id));
-          message.success('Đã xóa chuyến đi');
+          await tripService.cancelTrip(trip._id || trip.id, 'Hủy bởi nhà xe');
+          message.success('Đã hủy chuyến đi');
+          fetchTrips(); // Reload trips
         } catch (error) {
-          message.error('Không thể xóa chuyến đi');
+          message.error(error.response?.data?.message || 'Không thể hủy chuyến đi');
         }
       }
     });
@@ -218,7 +171,7 @@ const ManageTrips = () => {
       key: 'route',
       render: (_, record) => (
         <span>
-          {record.route.origin.city} → {record.route.destination.city}
+          {record.routeId?.origin?.city || record.route?.origin?.city} → {record.routeId?.destination?.city || record.route?.destination?.city}
         </span>
       )
     },
@@ -227,8 +180,8 @@ const ManageTrips = () => {
       key: 'bus',
       render: (_, record) => (
         <div>
-          <div className="font-medium">{record.bus.busNumber}</div>
-          <div className="text-sm text-gray-500">{record.bus.type}</div>
+          <div className="font-medium">{record.busId?.busNumber || record.bus?.busNumber}</div>
+          <div className="text-sm text-gray-500">{record.busId?.busType || record.bus?.type}</div>
         </div>
       )
     },
@@ -247,16 +200,20 @@ const ManageTrips = () => {
     {
       title: 'Ghế',
       key: 'seats',
-      render: (_, record) => (
-        <div>
-          <div className="font-medium">
-            {record.bookedSeats}/{record.bus.totalSeats}
+      render: (_, record) => {
+        const totalSeats = record.busId?.totalSeats || record.bus?.totalSeats || 0;
+        const bookedSeats = totalSeats - (record.availableSeats || 0);
+        return (
+          <div>
+            <div className="font-medium">
+              {bookedSeats}/{totalSeats}
+            </div>
+            <div className="text-sm text-gray-500">
+              Còn: {record.availableSeats || 0}
+            </div>
           </div>
-          <div className="text-sm text-gray-500">
-            Còn: {record.availableSeats}
-          </div>
-        </div>
-      )
+        );
+      }
     },
     {
       title: 'Giá',
@@ -429,7 +386,7 @@ const ManageTrips = () => {
           <Table
             columns={columns}
             dataSource={filteredTrips}
-            rowKey="id"
+            rowKey={(record) => record._id || record.id}
             loading={loading}
             pagination={{
               pageSize: 10,

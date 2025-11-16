@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Table, Button, Modal, Form, Input, InputNumber, Switch, message, Tag, Space } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import routeService from '../../services/routeService';
 
 const Routes = () => {
   const [routes, setRoutes] = useState([]);
@@ -17,8 +17,8 @@ const Routes = () => {
   const fetchRoutes = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/api/routes/my');
-      setRoutes(response.data.data || []);
+      const response = await routeService.getMyRoutes();
+      setRoutes(response.data || []);
     } catch (error) {
       message.error('Không thể tải danh sách tuyến đường');
       console.error('Error fetching routes:', error);
@@ -30,7 +30,7 @@ const Routes = () => {
   const handleSubmit = async (values) => {
     try {
       const payload = {
-        ...values,
+        routeName: values.routeName,
         origin: {
           city: values.originCity,
           address: values.originAddress
@@ -39,15 +39,18 @@ const Routes = () => {
           city: values.destinationCity,
           address: values.destinationAddress
         },
+        distance: values.distance,
+        estimatedDuration: values.estimatedDuration,
         pickupPoints: values.pickupPoints?.split('\n').filter(p => p.trim()) || [],
-        dropoffPoints: values.dropoffPoints?.split('\n').filter(p => p.trim()) || []
+        dropoffPoints: values.dropoffPoints?.split('\n').filter(p => p.trim()) || [],
+        isActive: values.isActive
       };
 
       if (editingRoute) {
-        await axios.put(`/api/routes/${editingRoute._id}`, payload);
+        await routeService.updateRoute(editingRoute._id, payload);
         message.success('Cập nhật tuyến đường thành công');
       } else {
-        await axios.post('/api/routes', payload);
+        await routeService.createRoute(payload);
         message.success('Thêm tuyến đường mới thành công');
       }
 
@@ -64,14 +67,14 @@ const Routes = () => {
     setEditingRoute(route);
     form.setFieldsValue({
       routeName: route.routeName,
-      originCity: route.origin.city,
-      originAddress: route.origin.address,
-      destinationCity: route.destination.city,
-      destinationAddress: route.destination.address,
+      originCity: route.origin?.city || '',
+      originAddress: route.origin?.address || '',
+      destinationCity: route.destination?.city || '',
+      destinationAddress: route.destination?.address || '',
       distance: route.distance,
       estimatedDuration: route.estimatedDuration,
-      pickupPoints: route.pickupPoints?.join('\n'),
-      dropoffPoints: route.dropoffPoints?.join('\n'),
+      pickupPoints: route.pickupPoints?.join('\n') || '',
+      dropoffPoints: route.dropoffPoints?.join('\n') || '',
       isActive: route.isActive
     });
     setModalVisible(true);
@@ -86,7 +89,7 @@ const Routes = () => {
       okType: 'danger',
       onOk: async () => {
         try {
-          await axios.delete(`/api/routes/${routeId}`);
+          await routeService.deleteRoute(routeId);
           message.success('Xóa tuyến đường thành công');
           fetchRoutes();
         } catch (error) {

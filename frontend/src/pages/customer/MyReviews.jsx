@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   List,
@@ -25,6 +25,8 @@ import {
 } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
+import { Loading, ErrorMessage } from '../../components/common';
+import reviewService from '../../services/reviewService';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -32,61 +34,33 @@ const { TextArea } = Input;
 const MyReviews = () => {
   const [editModal, setEditModal] = useState(false);
   const [selectedReview, setSelectedReview] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState([]);
+  const [error, setError] = useState(null);
   const [form] = Form.useForm();
 
-  // Mock reviews data
-  const reviews = [
-    {
-      id: 1,
-      bookingCode: 'BK2024011401',
-      tripId: 'TRP001',
-      route: 'TP.HCM → Đà Lạt',
-      operator: 'Phương Trang',
-      operatorId: 'OPR001',
-      departureDate: '2024-01-10 06:00',
-      rating: 5,
-      comment: 'Chuyến đi rất tuyệt vời! Xe sạch sẽ, tài xế lái xe an toàn, nhân viên phục vụ nhiệt tình. Sẽ tiếp tục sử dụng dịch vụ.',
-      reviewDate: '2024-01-11 14:30',
-      helpful: 12,
-      response: {
-        text: 'Cảm ơn quý khách đã tin tưởng và sử dụng dịch vụ. Phương Trang rất vui khi mang đến trải nghiệm tốt cho quý khách!',
-        date: '2024-01-11 16:00',
-        responder: 'Phương Trang'
+  useEffect(() => {
+    fetchReviews();
+  }, []);
+
+  const fetchReviews = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await reviewService.getMyReviews();
+
+      if (response.success) {
+        setReviews(response.data.reviews || []);
+      } else {
+        setError(response.message || 'Không thể tải danh sách đánh giá');
       }
-    },
-    {
-      id: 2,
-      bookingCode: 'BK2024010502',
-      tripId: 'TRP002',
-      route: 'TP.HCM → Cần Thơ',
-      operator: 'Mai Linh',
-      operatorId: 'OPR002',
-      departureDate: '2024-01-05 08:30',
-      rating: 4,
-      comment: 'Nhìn chung khá tốt. Xe đúng giờ, ghế ngồi thoải mái. Tuy nhiên điều hòa hơi lạnh.',
-      reviewDate: '2024-01-06 10:15',
-      helpful: 5,
-      response: null
-    },
-    {
-      id: 3,
-      bookingCode: 'BK2023122803',
-      tripId: 'TRP003',
-      route: 'Hà Nội → Hải Phòng',
-      operator: 'Kumho Samco',
-      operatorId: 'OPR003',
-      departureDate: '2023-12-28 14:00',
-      rating: 3,
-      comment: 'Xe khởi hành trễ 30 phút so với lịch. Chất lượng dịch vụ bình thường.',
-      reviewDate: '2023-12-29 09:00',
-      helpful: 8,
-      response: {
-        text: 'Chúng tôi xin lỗi vì sự chậm trễ này. Đây là trường hợp ngoại lệ do tình trạng giao thông. Chúng tôi sẽ cải thiện trong tương lai.',
-        date: '2023-12-29 14:30',
-        responder: 'Kumho Samco'
-      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Đã có lỗi xảy ra');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const handleEdit = (review) => {
     setSelectedReview(review);
@@ -98,17 +72,42 @@ const MyReviews = () => {
   };
 
   const handleSaveEdit = async (values) => {
-    // TODO: Integrate with API
-    console.log('Updating review:', values);
-    message.success('Đã cập nhật đánh giá');
-    setEditModal(false);
+    try {
+      const response = await reviewService.updateReview(selectedReview._id, {
+        rating: values.rating,
+        comment: values.comment
+      });
+
+      if (response.success) {
+        message.success('Đã cập nhật đánh giá');
+        setEditModal(false);
+        fetchReviews(); // Refresh the list
+      } else {
+        message.error(response.message || 'Không thể cập nhật đánh giá');
+      }
+    } catch (err) {
+      message.error(err.response?.data?.message || 'Đã có lỗi xảy ra');
+    }
   };
 
   const handleDelete = async (reviewId) => {
-    // TODO: Integrate with API
-    console.log('Deleting review:', reviewId);
-    message.success('Đã xóa đánh giá');
+    try {
+      const response = await reviewService.deleteReview(reviewId);
+
+      if (response.success) {
+        message.success('Đã xóa đánh giá');
+        fetchReviews(); // Refresh the list
+      } else {
+        message.error(response.message || 'Không thể xóa đánh giá');
+      }
+    } catch (err) {
+      message.error(err.response?.data?.message || 'Đã có lỗi xảy ra');
+    }
   };
+
+  if (loading) {
+    return <Loading tip="Đang tải danh sách đánh giá..." fullScreen />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -122,7 +121,14 @@ const MyReviews = () => {
         </div>
 
         {/* Reviews List */}
-        {reviews.length === 0 ? (
+        {error ? (
+          <ErrorMessage
+            message="Không thể tải danh sách đánh giá"
+            description={error}
+            showRetry
+            onRetry={fetchReviews}
+          />
+        ) : reviews.length === 0 ? (
           <Card>
             <Empty
               description="Bạn chưa có đánh giá nào"
@@ -177,7 +183,7 @@ const MyReviews = () => {
                     <Popconfirm
                       title="Xóa đánh giá này?"
                       description="Bạn sẽ không thể khôi phục đánh giá sau khi xóa."
-                      onConfirm={() => handleDelete(review.id)}
+                      onConfirm={() => handleDelete(review._id)}
                       okText="Xóa"
                       cancelText="Hủy"
                       okButtonProps={{ danger: true }}

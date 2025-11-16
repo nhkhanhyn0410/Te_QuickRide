@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Table, Button, Modal, Form, Input, Select, InputNumber, Switch, message, Tag, Space } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import busService from '../../services/busService';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -23,8 +23,8 @@ const Buses = () => {
   const fetchBuses = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/api/buses/my');
-      setBuses(response.data.data || []);
+      const response = await busService.getAllBuses();
+      setBuses(response.data || []);
     } catch (error) {
       message.error('Không thể tải danh sách xe');
       console.error('Error fetching buses:', error);
@@ -35,11 +35,17 @@ const Buses = () => {
 
   const handleSubmit = async (values) => {
     try {
+      // Convert images from textarea to array
+      const processedValues = {
+        ...values,
+        images: values.images ? values.images.split('\n').filter(img => img.trim()) : []
+      };
+
       if (editingBus) {
-        await axios.put(`/api/buses/${editingBus._id}`, values);
+        await busService.updateBus(editingBus._id, processedValues);
         message.success('Cập nhật xe thành công');
       } else {
-        await axios.post('/api/buses', values);
+        await busService.createBus(processedValues);
         message.success('Thêm xe mới thành công');
       }
 
@@ -54,7 +60,12 @@ const Buses = () => {
 
   const handleEdit = (bus) => {
     setEditingBus(bus);
-    form.setFieldsValue(bus);
+    // Convert images array to textarea format
+    const formattedBus = {
+      ...bus,
+      images: bus.images?.join('\n') || ''
+    };
+    form.setFieldsValue(formattedBus);
     setModalVisible(true);
   };
 
@@ -67,7 +78,7 @@ const Buses = () => {
       okType: 'danger',
       onOk: async () => {
         try {
-          await axios.delete(`/api/buses/${busId}`);
+          await busService.deleteBus(busId);
           message.success('Xóa xe thành công');
           fetchBuses();
         } catch (error) {

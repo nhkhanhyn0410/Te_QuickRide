@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Card,
@@ -13,7 +13,8 @@ import {
   Progress,
   Empty,
   Modal,
-  message
+  message,
+  Spin
 } from 'antd';
 import {
   GiftOutlined,
@@ -25,6 +26,7 @@ import {
   FireOutlined,
   TrophyOutlined
 } from '@ant-design/icons';
+import voucherService from '../../services/voucherService';
 import dayjs from 'dayjs';
 
 const { Title, Text, Paragraph } = Typography;
@@ -35,116 +37,49 @@ const Promotions = () => {
   const [selectedType, setSelectedType] = useState('all');
   const [voucherModal, setVoucherModal] = useState(false);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
+  const [promotions, setPromotions] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // Mock promotions data
-  const promotions = [
-    {
-      id: 1,
-      code: 'TET2024',
-      title: 'Khuyến mãi Tết Nguyên Đán 2024',
-      description: 'Giảm 20% cho tất cả các tuyến dịp Tết. Áp dụng từ mùng 1 đến mùng 7.',
-      type: 'percentage',
-      discount: 20,
-      maxDiscount: 100000,
-      minOrder: 200000,
-      startDate: '2024-02-10',
-      endDate: '2024-02-17',
-      quantity: 1000,
-      used: 456,
-      isHot: true,
-      routes: ['all'],
-      operators: ['all'],
-      image: 'https://images.unsplash.com/photo-1548678967-f1aec58f6fb2?w=600'
-    },
-    {
-      id: 2,
-      code: 'DALAT50K',
-      title: 'Giảm 50K tuyến Sài Gòn - Đà Lạt',
-      description: 'Giảm ngay 50.000đ cho tuyến TP.HCM - Đà Lạt. Đặt vé ngay!',
-      type: 'fixed',
-      discount: 50000,
-      minOrder: 200000,
-      startDate: '2024-01-15',
-      endDate: '2024-02-15',
-      quantity: 500,
-      used: 234,
-      isHot: true,
-      routes: ['TP.HCM → Đà Lạt'],
-      operators: ['all'],
-      image: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=600'
-    },
-    {
-      id: 3,
-      code: 'NEWUSER30',
-      title: 'Ưu đãi khách hàng mới',
-      description: 'Giảm 30% cho lần đặt vé đầu tiên. Dành riêng cho khách hàng mới.',
-      type: 'percentage',
-      discount: 30,
-      maxDiscount: 80000,
-      minOrder: 150000,
-      startDate: '2024-01-01',
-      endDate: '2024-03-31',
-      quantity: 2000,
-      used: 1456,
-      isHot: false,
-      routes: ['all'],
-      operators: ['all'],
-      image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600'
-    },
-    {
-      id: 4,
-      code: 'WEEKEND15',
-      title: 'Giảm giá cuối tuần',
-      description: 'Giảm 15% cho các chuyến xe cuối tuần (Thứ 7 & Chủ nhật).',
-      type: 'percentage',
-      discount: 15,
-      maxDiscount: 50000,
-      minOrder: 100000,
-      startDate: '2024-01-20',
-      endDate: '2024-02-29',
-      quantity: 1500,
-      used: 678,
-      isHot: false,
-      routes: ['all'],
-      operators: ['all'],
-      image: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=600'
-    },
-    {
-      id: 5,
-      code: 'MEKONG100K',
-      title: 'Khám phá miền Tây - Giảm 100K',
-      description: 'Giảm 100.000đ cho các tuyến đi miền Tây. Áp dụng cho Cần Thơ, An Giang, Kiên Giang.',
-      type: 'fixed',
-      discount: 100000,
-      minOrder: 300000,
-      startDate: '2024-01-10',
-      endDate: '2024-02-10',
-      quantity: 300,
-      used: 189,
-      isHot: true,
-      routes: ['TP.HCM → Cần Thơ', 'TP.HCM → An Giang'],
-      operators: ['all'],
-      image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600'
-    },
-    {
-      id: 6,
-      code: 'LOYAL25',
-      title: 'Tri ân khách hàng thân thiết',
-      description: 'Giảm 25% dành cho khách hàng hạng Gold và Platinum.',
-      type: 'percentage',
-      discount: 25,
-      maxDiscount: 120000,
-      minOrder: 200000,
-      startDate: '2024-01-01',
-      endDate: '2024-12-31',
-      quantity: 5000,
-      used: 2345,
-      isHot: false,
-      routes: ['all'],
-      operators: ['all'],
-      image: 'https://images.unsplash.com/photo-1513128034602-7814ccaddd4e?w=600'
+  useEffect(() => {
+    fetchPromotions();
+  }, []);
+
+  const fetchPromotions = async () => {
+    try {
+      setLoading(true);
+      const response = await voucherService.getAvailableVouchers();
+
+      if (response.success && response.data.vouchers) {
+        // Map API vouchers to promotion format
+        const formattedPromotions = response.data.vouchers.map(voucher => ({
+          id: voucher._id,
+          code: voucher.code,
+          title: voucher.description || voucher.code,
+          description: voucher.description || 'Mã giảm giá đặc biệt',
+          type: voucher.discountType,
+          discount: voucher.discountValue,
+          maxDiscount: voucher.maxDiscount,
+          minOrder: voucher.minOrderValue,
+          startDate: voucher.validFrom,
+          endDate: voucher.validTo,
+          quantity: voucher.maxUsage,
+          used: voucher.usedCount || 0,
+          isHot: voucher.isActive && (voucher.usedCount || 0) / voucher.maxUsage > 0.5,
+          routes: voucher.applicableRoutes || ['all'],
+          operators: voucher.applicableOperators || ['all'],
+          image: 'https://images.unsplash.com/photo-1513128034602-7814ccaddd4e?w=600'
+        }));
+        setPromotions(formattedPromotions);
+      }
+    } catch (error) {
+      console.error('Error fetching vouchers:', error);
+      message.error('Không thể tải danh sách khuyến mãi');
+      // Set empty array on error instead of showing mock data
+      setPromotions([]);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const getTypeTag = (type) => {
     if (type === 'percentage') {
@@ -230,8 +165,14 @@ const Promotions = () => {
 
       {/* Promotions Content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-        {/* Hot Promotions */}
-        {hotPromotions.length > 0 && (
+        {loading ? (
+          <div className="text-center py-12">
+            <Spin size="large" tip="Đang tải khuyến mãi..." />
+          </div>
+        ) : (
+          <>
+            {/* Hot Promotions */}
+            {hotPromotions.length > 0 && (
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-4">
               <FireOutlined className="text-2xl text-red-500" />
@@ -437,10 +378,12 @@ const Promotions = () => {
           </div>
         )}
 
-        {filteredPromotions.length === 0 && (
-          <Card>
-            <Empty description="Không có khuyến mãi nào" />
-          </Card>
+            {filteredPromotions.length === 0 && (
+              <Card>
+                <Empty description="Không có khuyến mãi nào" />
+              </Card>
+            )}
+          </>
         )}
       </div>
 

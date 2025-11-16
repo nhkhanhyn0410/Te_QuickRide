@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import bookingService from '../../services/bookingService';
 import {
   Card,
   Table,
@@ -48,18 +49,47 @@ const Bookings = () => {
   const [detailDrawer, setDetailDrawer] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [bookingsData, setBookingsData] = useState([]);
+  const [stats, setStats] = useState({
+    total: 0,
+    confirmed: 0,
+    pending: 0,
+    cancelled: 0,
+    revenue: 0
+  });
 
-  // Mock statistics
-  const stats = {
-    total: 1567,
-    confirmed: 1234,
-    pending: 145,
-    cancelled: 188,
-    revenue: 425000000
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const fetchBookings = async () => {
+    setLoading(true);
+    try {
+      const response = await bookingService.getOperatorBookings();
+      const bookings = response.data || [];
+      setBookingsData(bookings);
+
+      // Calculate statistics
+      const newStats = {
+        total: bookings.length,
+        confirmed: bookings.filter(b => b.status === 'confirmed').length,
+        pending: bookings.filter(b => b.status === 'pending').length,
+        cancelled: bookings.filter(b => b.status === 'cancelled').length,
+        revenue: bookings
+          .filter(b => b.paymentStatus === 'paid')
+          .reduce((sum, b) => sum + (b.totalAmount || 0), 0)
+      };
+      setStats(newStats);
+    } catch (error) {
+      message.error('Không thể tải danh sách booking');
+      console.error('Error fetching bookings:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Mock bookings data
-  const bookingsData = [
+  // Backup mock data for development
+  const mockBookingsData = [
     {
       key: 1,
       bookingCode: 'BK2024011501',
@@ -327,22 +357,36 @@ const Bookings = () => {
 
   const handleConfirmBooking = async (bookingCode) => {
     setLoading(true);
-    // TODO: Integrate with API
-    setTimeout(() => {
-      message.success(`Đã xác nhận booking ${bookingCode}`);
+    try {
+      const booking = bookingsData.find(b => b.bookingCode === bookingCode);
+      if (booking) {
+        await bookingService.confirmBooking(booking._id || booking.key);
+        message.success(`Đã xác nhận booking ${bookingCode}`);
+        fetchBookings(); // Refresh data
+        setDetailDrawer(false);
+      }
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Không thể xác nhận booking');
+    } finally {
       setLoading(false);
-      setDetailDrawer(false);
-    }, 1000);
+    }
   };
 
   const handleCancelBooking = async (bookingCode) => {
     setLoading(true);
-    // TODO: Integrate with API
-    setTimeout(() => {
-      message.success(`Đã hủy booking ${bookingCode}`);
+    try {
+      const booking = bookingsData.find(b => b.bookingCode === bookingCode);
+      if (booking) {
+        await bookingService.cancelBooking(booking._id || booking.key, 'Hủy bởi nhà xe');
+        message.success(`Đã hủy booking ${bookingCode}`);
+        fetchBookings(); // Refresh data
+        setDetailDrawer(false);
+      }
+    } catch (error) {
+      message.error(error.response?.data?.message || 'Không thể hủy booking');
+    } finally {
       setLoading(false);
-      setDetailDrawer(false);
-    }, 1000);
+    }
   };
 
   const handleExport = () => {
@@ -351,12 +395,7 @@ const Bookings = () => {
   };
 
   const handleRefresh = () => {
-    setLoading(true);
-    // TODO: Fetch fresh data from API
-    setTimeout(() => {
-      message.success('Đã làm mới dữ liệu');
-      setLoading(false);
-    }, 1000);
+    fetchBookings();
   };
 
   const filteredData = bookingsData.filter(booking => {

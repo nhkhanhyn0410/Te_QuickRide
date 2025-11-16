@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   Row,
@@ -11,7 +11,8 @@ import {
   Table,
   Progress,
   Tag,
-  Tabs
+  Tabs,
+  message
 } from 'antd';
 import {
   DollarOutlined,
@@ -26,6 +27,7 @@ import {
   TeamOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import analyticsService from '../../services/analyticsService';
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -38,23 +40,58 @@ const Analytics = () => {
     dayjs()
   ]);
   const [selectedMetric, setSelectedMetric] = useState('revenue');
+  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState({
+    totalRevenue: 0,
+    revenueGrowth: 0,
+    totalBookings: 0,
+    bookingsGrowth: 0,
+    totalUsers: 0,
+    usersGrowth: 0,
+    totalOperators: 0,
+    operatorsGrowth: 0,
+    avgCommission: 0,
+    systemOccupancy: 0
+  });
 
-  // System-wide statistics
-  const stats = {
-    totalRevenue: 1245678000,
-    revenueGrowth: 24.5,
-    totalBookings: 5678,
-    bookingsGrowth: 18.2,
-    totalUsers: 12456,
-    usersGrowth: 15.8,
-    totalOperators: 45,
-    operatorsGrowth: 8.3,
-    avgCommission: 8.5,
-    systemOccupancy: 76.8
+  const [topOperators, setTopOperators] = useState([]);
+  const [popularRoutes, setPopularRoutes] = useState([]);
+  const [commissionData, setCommissionData] = useState([]);
+
+  useEffect(() => {
+    fetchAnalyticsData();
+  }, [dateRange]);
+
+  const fetchAnalyticsData = async () => {
+    setLoading(true);
+    try {
+      const params = {
+        startDate: dateRange[0].format('YYYY-MM-DD'),
+        endDate: dateRange[1].format('YYYY-MM-DD')
+      };
+
+      // Fetch all analytics data
+      const [dashboardData, operatorPerf, topRoutes, commissionAnalytics] = await Promise.all([
+        analyticsService.getDashboardStats(params),
+        analyticsService.getOperatorPerformance({ ...params, limit: 5 }),
+        analyticsService.getTopRoutes(5),
+        analyticsService.getCommissionAnalytics(params)
+      ]);
+
+      setStats(dashboardData || stats);
+      setTopOperators(operatorPerf.data || []);
+      setPopularRoutes(topRoutes.data || []);
+      setCommissionData(commissionAnalytics.data || []);
+    } catch (error) {
+      message.error('Không thể tải dữ liệu phân tích');
+      console.error('Error fetching analytics:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Top operators by revenue
-  const topOperators = [
+  const topOperatorsOld = [
     {
       key: 1,
       name: 'Phương Trang',
@@ -112,60 +149,6 @@ const Analytics = () => {
     }
   ];
 
-  // Popular routes system-wide
-  const popularRoutes = [
-    {
-      key: 1,
-      route: 'TP.HCM → Đà Lạt',
-      operators: 12,
-      trips: 678,
-      bookings: 2345,
-      revenue: 645000000,
-      avgPrice: 275000,
-      occupancy: 88.5
-    },
-    {
-      key: 2,
-      route: 'Hà Nội → Hải Phòng',
-      operators: 15,
-      trips: 892,
-      bookings: 3456,
-      revenue: 589000000,
-      avgPrice: 170000,
-      occupancy: 85.2
-    },
-    {
-      key: 3,
-      route: 'TP.HCM → Cần Thơ',
-      operators: 10,
-      trips: 567,
-      bookings: 1987,
-      revenue: 287000000,
-      avgPrice: 144000,
-      occupancy: 78.3
-    },
-    {
-      key: 4,
-      route: 'Hà Nội → Sapa',
-      operators: 8,
-      trips: 234,
-      bookings: 876,
-      revenue: 298000000,
-      avgPrice: 340000,
-      occupancy: 82.1
-    },
-    {
-      key: 5,
-      route: 'Đà Nẵng → Huế',
-      operators: 9,
-      trips: 445,
-      bookings: 1456,
-      revenue: 198000000,
-      avgPrice: 136000,
-      occupancy: 75.6
-    }
-  ];
-
   // Daily system revenue (last 7 days)
   const dailyRevenue = [
     { date: '15/01', revenue: 45200000, bookings: 189, operators: 42 },
@@ -186,16 +169,6 @@ const Analytics = () => {
     { month: 'T11', customers: 2345, operators: 8 },
     { month: 'T12', customers: 2876, operators: 7 },
     { month: 'T1', customers: 3456, operators: 12 }
-  ];
-
-  // Commission breakdown
-  const commissionData = [
-    { operator: 'Phương Trang', amount: 38760000, percentage: 22.5 },
-    { operator: 'Mai Linh', amount: 33830000, percentage: 19.6 },
-    { operator: 'Kumho Samco', amount: 29325000, percentage: 17.0 },
-    { operator: 'Hoàng Long', amount: 24565000, percentage: 14.2 },
-    { operator: 'Thành Bưởi', amount: 19890000, percentage: 11.5 },
-    { operator: 'Khác', amount: 26030000, percentage: 15.2 }
   ];
 
   const operatorColumns = [
@@ -339,9 +312,30 @@ const Analytics = () => {
     }
   ];
 
-  const handleExport = () => {
-    // TODO: Implement export to Excel
-    console.log('Exporting data...');
+  const handleExport = async () => {
+    try {
+      const params = {
+        startDate: dateRange[0].format('YYYY-MM-DD'),
+        endDate: dateRange[1].format('YYYY-MM-DD'),
+        metric: selectedMetric
+      };
+
+      const blob = await analyticsService.exportAnalytics('analytics', params);
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `analytics_${dayjs().format('YYYYMMDD')}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      message.success('Đã xuất báo cáo thành công');
+    } catch (error) {
+      message.error('Không thể xuất báo cáo');
+      console.error('Error exporting analytics:', error);
+    }
   };
 
   return (

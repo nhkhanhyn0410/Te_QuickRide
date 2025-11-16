@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   Tabs,
@@ -19,7 +19,8 @@ import {
   Tag,
   Space,
   Typography,
-  Popconfirm
+  Popconfirm,
+  Spin
 } from 'antd';
 import {
   UserOutlined,
@@ -33,6 +34,7 @@ import {
   TrophyOutlined,
   GiftOutlined
 } from '@ant-design/icons';
+import userService from '../../services/userService';
 import dayjs from 'dayjs';
 
 const { Title, Text, Paragraph } = Typography;
@@ -41,35 +43,47 @@ const { Option } = Select;
 
 const MyProfile = () => {
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState('');
   const [passengerModalVisible, setPassengerModalVisible] = useState(false);
   const [editingPassenger, setEditingPassenger] = useState(null);
-  const [savedPassengers, setSavedPassengers] = useState([
-    {
-      id: 1,
-      fullName: 'Nguyễn Văn A',
-      phone: '0912345678',
-      idCard: '079012345678',
-      isDefault: true
-    },
-    {
-      id: 2,
-      fullName: 'Trần Thị B',
-      phone: '0987654321',
-      idCard: '079087654321',
-      isDefault: false
-    }
-  ]);
+  const [savedPassengers, setSavedPassengers] = useState([]);
+  const [userInfo, setUserInfo] = useState(null);
+  const [profileForm] = Form.useForm();
 
-  const [userInfo, setUserInfo] = useState({
-    fullName: 'Nguyễn Văn Test',
-    email: 'test@example.com',
-    phone: '0912345678',
-    gender: 'male',
-    dateOfBirth: '1990-01-01',
-    loyaltyTier: 'Gold',
-    loyaltyPoints: 1250
-  });
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      setPageLoading(true);
+      const response = await userService.getMyProfile();
+
+      if (response.success) {
+        const user = response.data.user;
+        setUserInfo(user);
+        setAvatarUrl(user.avatar || '');
+        setSavedPassengers(user.savedPassengers || []);
+
+        // Update form with user data
+        profileForm.setFieldsValue({
+          fullName: user.fullName,
+          email: user.email,
+          phone: user.phoneNumber,
+          gender: user.gender,
+          dateOfBirth: user.dateOfBirth ? dayjs(user.dateOfBirth) : null
+        });
+      } else {
+        message.error('Không thể tải thông tin người dùng');
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      message.error('Đã có lỗi xảy ra');
+    } finally {
+      setPageLoading(false);
+    }
+  };
 
   const [pointsHistory] = useState([
     { id: 1, date: '2024-01-15', description: 'Đặt vé thành công', points: 50, type: 'earn' },
@@ -82,13 +96,25 @@ const MyProfile = () => {
   const handleUpdateProfile = async (values) => {
     setLoading(true);
     try {
-      // TODO: Integrate with API
-      console.log('Update profile:', values);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setUserInfo({ ...userInfo, ...values });
-      message.success('Cập nhật thông tin thành công!');
+      const updateData = {
+        fullName: values.fullName,
+        phoneNumber: values.phone,
+        gender: values.gender,
+        dateOfBirth: values.dateOfBirth ? values.dateOfBirth.toISOString() : null
+      };
+
+      const response = await userService.updateProfile(updateData);
+
+      if (response.success) {
+        message.success('Cập nhật thông tin thành công!');
+        // Refresh user profile
+        await fetchUserProfile();
+      } else {
+        message.error(response.message || 'Không thể cập nhật thông tin');
+      }
     } catch (error) {
-      message.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      console.error('Error updating profile:', error);
+      message.error(error.response?.data?.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -98,12 +124,22 @@ const MyProfile = () => {
   const handleChangePassword = async (values) => {
     setLoading(true);
     try {
-      // TODO: Integrate with API
-      console.log('Change password:', values);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      message.success('Đổi mật khẩu thành công!');
+      const response = await userService.changePassword(
+        values.oldPassword,
+        values.newPassword
+      );
+
+      if (response.success) {
+        message.success('Đổi mật khẩu thành công!');
+        // Reset form after successful password change
+        const form = document.querySelector('form');
+        if (form) form.reset();
+      } else {
+        message.error(response.message || 'Mật khẩu hiện tại không đúng');
+      }
     } catch (error) {
-      message.error('Mật khẩu hiện tại không đúng.');
+      console.error('Error changing password:', error);
+      message.error(error.response?.data?.message || 'Mật khẩu hiện tại không đúng.');
     } finally {
       setLoading(false);
     }
@@ -208,6 +244,30 @@ const MyProfile = () => {
     return colors[tier] || 'default';
   };
 
+  if (pageLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-12">
+          <Spin size="large" tip="Đang tải thông tin..." />
+        </div>
+      </div>
+    );
+  }
+
+  if (!userInfo) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Card>
+            <div className="text-center py-12">
+              <Text>Không thể tải thông tin người dùng</Text>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -226,8 +286,8 @@ const MyProfile = () => {
               <Title level={4} className="!text-white mt-3 mb-0">
                 {userInfo.fullName}
               </Title>
-              <Tag color={getLoyaltyTierColor(userInfo.loyaltyTier)} className="mt-2">
-                <TrophyOutlined /> {userInfo.loyaltyTier} Member
+              <Tag color={getLoyaltyTierColor(userInfo.loyaltyTier || 'Bronze')} className="mt-2">
+                <TrophyOutlined /> {userInfo.loyaltyTier || 'Bronze'} Member
               </Tag>
             </Col>
             <Col xs={24} md={16}>
@@ -235,7 +295,7 @@ const MyProfile = () => {
                 <Col xs={12} sm={8}>
                   <Statistic
                     title={<span className="text-blue-100">Điểm tích lũy</span>}
-                    value={userInfo.loyaltyPoints}
+                    value={userInfo.loyaltyPoints || 0}
                     suffix="pts"
                     valueStyle={{ color: '#fff', fontSize: '28px' }}
                   />
@@ -243,14 +303,14 @@ const MyProfile = () => {
                 <Col xs={12} sm={8}>
                   <Statistic
                     title={<span className="text-blue-100">Chuyến đi</span>}
-                    value={24}
+                    value={userInfo.totalTrips || 0}
                     valueStyle={{ color: '#fff', fontSize: '28px' }}
                   />
                 </Col>
                 <Col xs={12} sm={8}>
                   <Statistic
                     title={<span className="text-blue-100">Hạng thành viên</span>}
-                    value={userInfo.loyaltyTier}
+                    value={userInfo.loyaltyTier || 'Bronze'}
                     valueStyle={{ color: '#ffd700', fontSize: '24px' }}
                   />
                 </Col>
@@ -265,14 +325,8 @@ const MyProfile = () => {
             {/* Personal Info Tab */}
             <TabPane tab={<span><UserOutlined />Thông tin cá nhân</span>} key="1">
               <Form
+                form={profileForm}
                 layout="vertical"
-                initialValues={{
-                  fullName: userInfo.fullName,
-                  email: userInfo.email,
-                  phone: userInfo.phone,
-                  gender: userInfo.gender,
-                  dateOfBirth: dayjs(userInfo.dateOfBirth)
-                }}
                 onFinish={handleUpdateProfile}
               >
                 <Row gutter={16}>
@@ -432,7 +486,7 @@ const MyProfile = () => {
                   <Col xs={24} md={8}>
                     <Statistic
                       title="Điểm hiện có"
-                      value={userInfo.loyaltyPoints}
+                      value={userInfo.loyaltyPoints || 0}
                       suffix="điểm"
                       valueStyle={{ color: '#faad14' }}
                     />
@@ -440,7 +494,7 @@ const MyProfile = () => {
                   <Col xs={24} md={8}>
                     <Statistic
                       title="Hạng thành viên"
-                      value={userInfo.loyaltyTier}
+                      value={userInfo.loyaltyTier || 'Bronze'}
                       valueStyle={{ color: '#722ed1' }}
                     />
                   </Col>
@@ -455,7 +509,7 @@ const MyProfile = () => {
                 </Row>
               </Card>
 
-              <Divider>Lợi ích hạng {userInfo.loyaltyTier}</Divider>
+              <Divider>Lợi ích hạng {userInfo.loyaltyTier || 'Bronze'}</Divider>
               <ul className="list-disc pl-5 mb-6 space-y-2">
                 <li>Giảm giá 10% cho mọi chuyến đi</li>
                 <li>Ưu tiên chọn chỗ ngồi</li>
