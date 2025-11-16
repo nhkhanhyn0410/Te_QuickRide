@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Row, Col, Statistic, Table, Tag, Button } from 'antd';
+import { Card, Row, Col, Statistic, Table, Tag, Button, message } from 'antd';
 import {
   DollarOutlined,
   CarOutlined,
@@ -8,7 +8,8 @@ import {
   StarOutlined,
   EyeOutlined
 } from '@ant-design/icons';
-import axios from 'axios';
+import operatorService from '../../services/operatorService';
+import tripService from '../../services/tripService';
 
 const OperatorDashboard = () => {
   const [loading, setLoading] = useState(false);
@@ -30,19 +31,25 @@ const OperatorDashboard = () => {
     setLoading(true);
     try {
       // Fetch statistics
-      const statsResponse = await axios.get('/api/operators/statistics');
-      setStatistics(statsResponse.data.data.statistics);
+      const statsResponse = await operatorService.getMyStatistics();
+      setStatistics(statsResponse.data?.statistics || statsResponse.data || {
+        totalTrips: 0,
+        totalRevenue: 0,
+        averageRating: 0,
+        totalReviews: 0,
+        routeCount: 0,
+        busCount: 0
+      });
 
       // Fetch upcoming trips
-      const tripsResponse = await axios.get('/api/trips/my/trips', {
-        params: {
-          status: 'scheduled',
-          limit: 10
-        }
+      const tripsResponse = await tripService.getMyTrips({
+        status: 'scheduled',
+        limit: 10
       });
-      setUpcomingTrips(tripsResponse.data.data || []);
+      setUpcomingTrips(tripsResponse.data || []);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      message.error('Không thể tải dữ liệu dashboard');
     } finally {
       setLoading(false);
     }

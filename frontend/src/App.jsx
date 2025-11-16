@@ -6,7 +6,10 @@ import viVN from 'antd/locale/vi_VN';
 import { Header, Footer, ProtectedRoute } from './components/common';
 
 // Auth Pages
-import { Login, Register, OperatorRegister } from './pages/auth';
+import { Login, Register, OperatorRegister, ForgotPassword } from './pages/auth';
+
+// Public Pages
+import { About, Contact, Help, Blog, BlogDetail, Promotions } from './pages/public';
 
 // Customer Pages
 import {
@@ -16,7 +19,41 @@ import {
   Booking,
   Payment,
   MyBookings,
+  BookingSuccess,
+  BookingDetail,
+  MyProfile,
+  MyTickets,
+  TicketDetail,
+  Notifications,
+  MyReviews,
+  WriteReview,
+  MyVouchers,
 } from './pages/customer';
+
+// Operator Pages
+import {
+  Dashboard as OperatorDashboard,
+  Buses,
+  Routes as OperatorRoutes,
+  CreateTrip,
+  ManageTrips,
+  OperatorProfile,
+  Analytics as OperatorAnalytics,
+  Bookings as OperatorBookings,
+  Reviews as OperatorReviews,
+  Promotions as OperatorPromotions,
+} from './pages/operator';
+
+// Admin Pages
+import {
+  Dashboard as AdminDashboard,
+  ManageOperators,
+  Analytics as AdminAnalytics,
+  ManageUsers,
+  ManageVouchers,
+  ManageBookings,
+  Settings as AdminSettings,
+} from './pages/admin';
 
 // Layout Component
 const Layout = ({ children }) => {
@@ -37,17 +74,36 @@ function App() {
       <ConfigProvider locale={viVN}>
         <Router>
           <Routes>
-            {/* Public Routes */}
+            {/* Auth Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/operator/register" element={<OperatorRegister />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
-            {/* Customer Routes with Layout */}
+            {/* Public Routes with Layout */}
             <Route
               path="/"
               element={
                 <Layout>
                   <Home />
+                </Layout>
+              }
+            />
+
+            <Route
+              path="/about"
+              element={
+                <Layout>
+                  <About />
+                </Layout>
+              }
+            />
+
+            <Route
+              path="/contact"
+              element={
+                <Layout>
+                  <Contact />
                 </Layout>
               }
             />
@@ -70,7 +126,7 @@ function App() {
               }
             />
 
-            {/* Protected Routes - Require Authentication */}
+            {/* Customer Protected Routes */}
             <Route
               path="/booking"
               element={
@@ -94,11 +150,345 @@ function App() {
             />
 
             <Route
+              path="/booking/success/:bookingId"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <BookingSuccess />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
               path="/my-bookings"
               element={
                 <ProtectedRoute requireAuth={true}>
                   <Layout>
                     <MyBookings />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/customer/bookings/:bookingId"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <BookingDetail />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Operator Protected Routes */}
+            <Route
+              path="/operator/dashboard"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <OperatorDashboard />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/operator/buses"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <Buses />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/operator/routes"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <OperatorRoutes />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/operator/trips/create"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <CreateTrip />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/operator/trips"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <ManageTrips />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Customer Additional Routes */}
+            <Route
+              path="/customer/profile"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <MyProfile />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/customer/tickets"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <MyTickets />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/customer/tickets/:ticketId"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <TicketDetail />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Operator Additional Routes */}
+            <Route
+              path="/operator/profile"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <OperatorProfile />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/operator/analytics"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <OperatorAnalytics />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/operator/bookings"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <OperatorBookings />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Customer Notifications Route */}
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <Notifications />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Customer Reviews Routes */}
+            <Route
+              path="/customer/reviews"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <MyReviews />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/bookings/:bookingId/review"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <WriteReview />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Operator Reviews Route */}
+            <Route
+              path="/operator/reviews"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <OperatorReviews />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Help Page */}
+            <Route
+              path="/help"
+              element={
+                <Layout>
+                  <Help />
+                </Layout>
+              }
+            />
+
+            {/* Blog Pages */}
+            <Route
+              path="/blog"
+              element={
+                <Layout>
+                  <Blog />
+                </Layout>
+              }
+            />
+
+            <Route
+              path="/blog/:slug"
+              element={
+                <Layout>
+                  <BlogDetail />
+                </Layout>
+              }
+            />
+
+            {/* Promotions Page */}
+            <Route
+              path="/promotions"
+              element={
+                <Layout>
+                  <Promotions />
+                </Layout>
+              }
+            />
+
+            {/* Customer Vouchers Route */}
+            <Route
+              path="/customer/vouchers"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <MyVouchers />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin Protected Routes */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="admin">
+                  <Layout>
+                    <AdminDashboard />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/operators"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="admin">
+                  <Layout>
+                    <ManageOperators />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="admin">
+                  <Layout>
+                    <ManageUsers />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/analytics"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="admin">
+                  <Layout>
+                    <AdminAnalytics />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/vouchers"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="admin">
+                  <Layout>
+                    <ManageVouchers />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/bookings"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="admin">
+                  <Layout>
+                    <ManageBookings />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/settings"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="admin">
+                  <Layout>
+                    <AdminSettings />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Operator Promotions Route */}
+            <Route
+              path="/operator/promotions"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <OperatorPromotions />
                   </Layout>
                 </ProtectedRoute>
               }

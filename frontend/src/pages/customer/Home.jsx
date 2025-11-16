@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Input, DatePicker, Button, Card, Row, Col } from 'antd';
+import { Form, Input, DatePicker, Button, Card, Row, Col, message, Spin } from 'antd';
 import {
   SearchOutlined,
   EnvironmentOutlined,
@@ -11,12 +11,63 @@ import {
   CustomerServiceOutlined,
   ThunderboltOutlined,
 } from '@ant-design/icons';
+import routeService from '../../services/routeService';
 import dayjs from 'dayjs';
 
 const Home = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [popularRoutes, setPopularRoutes] = useState([]);
+  const [routesLoading, setRoutesLoading] = useState(false);
+
+  useEffect(() => {
+    fetchPopularRoutes();
+  }, []);
+
+  const fetchPopularRoutes = async () => {
+    try {
+      setRoutesLoading(true);
+      const response = await routeService.getPopularRoutes(6);
+
+      if (response.success && response.data.routes) {
+        // Map routes to display format
+        const formattedRoutes = response.data.routes.map((route, index) => {
+          const icons = ['🏖️', '🌲', '🏝️', '⛰️', '🏔️', '🚣'];
+          return {
+            from: route.origin?.city || route.origin?.address || 'N/A',
+            to: route.destination?.city || route.destination?.address || 'N/A',
+            icon: icons[index % icons.length],
+            tripCount: route.tripCount || 0
+          };
+        });
+        setPopularRoutes(formattedRoutes);
+      } else {
+        // Fallback to default routes if API fails
+        setPopularRoutes([
+          { from: 'Hồ Chí Minh', to: 'Vũng Tàu', icon: '🏖️' },
+          { from: 'Hồ Chí Minh', to: 'Đà Lạt', icon: '🌲' },
+          { from: 'Hồ Chí Minh', to: 'Nha Trang', icon: '🏝️' },
+          { from: 'Hà Nội', to: 'Hạ Long', icon: '⛰️' },
+          { from: 'Hà Nội', to: 'Sapa', icon: '🏔️' },
+          { from: 'Hà Nội', to: 'Ninh Bình', icon: '🚣' },
+        ]);
+      }
+    } catch (error) {
+      console.error('Error fetching popular routes:', error);
+      // Fallback to default routes on error
+      setPopularRoutes([
+        { from: 'Hồ Chí Minh', to: 'Vũng Tàu', icon: '🏖️' },
+        { from: 'Hồ Chí Minh', to: 'Đà Lạt', icon: '🌲' },
+        { from: 'Hồ Chí Minh', to: 'Nha Trang', icon: '🏝️' },
+        { from: 'Hà Nội', to: 'Hạ Long', icon: '⛰️' },
+        { from: 'Hà Nội', to: 'Sapa', icon: '🏔️' },
+        { from: 'Hà Nội', to: 'Ninh Bình', icon: '🚣' },
+      ]);
+    } finally {
+      setRoutesLoading(false);
+    }
+  };
 
   const handleSearch = (values) => {
     setLoading(true);
@@ -40,15 +91,6 @@ const Home = () => {
       departureDate: dayjs(),
     });
   };
-
-  const popularRoutes = [
-    { from: 'Hồ Chí Minh', to: 'Vũng Tàu', icon: '🏖️' },
-    { from: 'Hồ Chí Minh', to: 'Đà Lạt', icon: '🌲' },
-    { from: 'Hồ Chí Minh', to: 'Nha Trang', icon: '🏝️' },
-    { from: 'Hà Nội', to: 'Hạ Long', icon: '⛰️' },
-    { from: 'Hà Nội', to: 'Sapa', icon: '🏔️' },
-    { from: 'Hà Nội', to: 'Ninh Bình', icon: '🚣' },
-  ];
 
   const features = [
     {
@@ -179,25 +221,31 @@ const Home = () => {
           Tuyến xe phổ biến
         </h2>
 
-        <Row gutter={[16, 16]}>
-          {popularRoutes.map((route, index) => (
-            <Col xs={24} sm={12} md={8} key={index}>
-              <Card
-                hoverable
-                className="text-center cursor-pointer transition-all duration-300 hover:shadow-lg"
-                onClick={() => handleQuickSearch(route.from, route.to)}
-              >
-                <div className="text-4xl mb-3">{route.icon}</div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {route.from} → {route.to}
-                </h3>
-                <Button type="link" icon={<SearchOutlined />}>
-                  Tìm chuyến xe
-                </Button>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+        {routesLoading ? (
+          <div className="text-center py-12">
+            <Spin size="large" tip="Đang tải tuyến xe phổ biến..." />
+          </div>
+        ) : (
+          <Row gutter={[16, 16]}>
+            {popularRoutes.map((route, index) => (
+              <Col xs={24} sm={12} md={8} key={index}>
+                <Card
+                  hoverable
+                  className="text-center cursor-pointer transition-all duration-300 hover:shadow-lg"
+                  onClick={() => handleQuickSearch(route.from, route.to)}
+                >
+                  <div className="text-4xl mb-3">{route.icon}</div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    {route.from} → {route.to}
+                  </h3>
+                  <Button type="link" icon={<SearchOutlined />}>
+                    Tìm chuyến xe
+                  </Button>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        )}
       </div>
 
       {/* Features Section */}
