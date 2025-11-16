@@ -21,6 +21,9 @@ import {
   MyBookings,
   BookingSuccess,
   BookingDetail,
+  MyProfile,
+  MyTickets,
+  TicketDetail,
 } from './pages/customer';
 
 // Operator Pages
@@ -29,7 +32,13 @@ import {
   Buses,
   Routes as OperatorRoutes,
   CreateTrip,
+  ManageTrips,
 } from './pages/operator';
+
+// Admin Pages
+import {
+  Dashboard as AdminDashboard,
+} from './pages/admin';
 
 // Layout Component
 const Layout = ({ children }) => {
@@ -198,6 +207,63 @@ function App() {
                 <ProtectedRoute requireAuth={true} requiredRole="operator">
                   <Layout>
                     <CreateTrip />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/operator/trips"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <ManageTrips />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Customer Additional Routes */}
+            <Route
+              path="/customer/profile"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <MyProfile />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/customer/tickets"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <MyTickets />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/customer/tickets/:ticketId"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <TicketDetail />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin Protected Routes */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="admin">
+                  <Layout>
+                    <AdminDashboard />
                   </Layout>
                 </ProtectedRoute>
               }

@@ -6,3 +6,6 @@ export { default as Payment } from './Payment';
 export { default as MyBookings } from './MyBookings';
 export { default as BookingSuccess } from './BookingSuccess';
 export { default as BookingDetail } from './BookingDetail';
+export { default as MyProfile } from './MyProfile';
+export { default as MyTickets } from './MyTickets';
+export { default as TicketDetail } from './TicketDetail';
