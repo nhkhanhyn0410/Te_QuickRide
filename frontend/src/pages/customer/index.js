@@ -12,3 +12,4 @@ export { default as TicketDetail } from './TicketDetail';
 export { default as Notifications } from './Notifications';
 export { default as MyReviews } from './MyReviews';
 export { default as WriteReview } from './WriteReview';
+export { default as MyVouchers } from './MyVouchers';

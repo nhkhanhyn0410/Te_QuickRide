@@ -9,7 +9,7 @@ import { Header, Footer, ProtectedRoute } from './components/common';
 import { Login, Register, OperatorRegister, ForgotPassword } from './pages/auth';
 
 // Public Pages
-import { About, Contact, Help } from './pages/public';
+import { About, Contact, Help, Blog, BlogDetail, Promotions } from './pages/public';
 
 // Customer Pages
 import {
@@ -27,6 +27,7 @@ import {
   Notifications,
   MyReviews,
   WriteReview,
+  MyVouchers,
 } from './pages/customer';
 
 // Operator Pages
@@ -355,6 +356,47 @@ function App() {
                 <Layout>
                   <Help />
                 </Layout>
+              }
+            />
+
+            {/* Blog Pages */}
+            <Route
+              path="/blog"
+              element={
+                <Layout>
+                  <Blog />
+                </Layout>
+              }
+            />
+
+            <Route
+              path="/blog/:slug"
+              element={
+                <Layout>
+                  <BlogDetail />
+                </Layout>
+              }
+            />
+
+            {/* Promotions Page */}
+            <Route
+              path="/promotions"
+              element={
+                <Layout>
+                  <Promotions />
+                </Layout>
+              }
+            />
+
+            {/* Customer Vouchers Route */}
+            <Route
+              path="/customer/vouchers"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <MyVouchers />
+                  </Layout>
+                </ProtectedRoute>
               }
             />
 
