@@ -13,6 +13,12 @@ export const authService = {
     return response.data;
   },
 
+  // Operator Register
+  operatorRegister: async (operatorData) => {
+    const response = await api.post('/operators/register', operatorData);
+    return response.data;
+  },
+
   // Operator Login
   operatorLogin: async (credentials) => {
     const response = await api.post('/auth/operator/login', credentials);

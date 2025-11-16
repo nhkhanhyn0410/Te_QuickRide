@@ -17,7 +17,12 @@ const Login = () => {
   const handleCustomerLogin = async (values) => {
     try {
       dispatch(loginStart());
-      const response = await authService.login(values);
+      // Map phoneNumber to emailOrPhone for backend
+      const loginData = {
+        emailOrPhone: values.phoneNumber,
+        password: values.password
+      };
+      const response = await authService.login(loginData);
 
       if (response.success) {
         dispatch(loginSuccess({
@@ -39,7 +44,12 @@ const Login = () => {
   const handleOperatorLogin = async (values) => {
     try {
       dispatch(loginStart());
-      const response = await authService.operatorLogin(values);
+      // Map email to emailOrPhone for backend validator
+      const loginData = {
+        emailOrPhone: values.email,
+        password: values.password
+      };
+      const response = await authService.operatorLogin(loginData);
 
       if (response.success) {
         dispatch(loginSuccess({
@@ -103,8 +113,7 @@ const Login = () => {
                 label="Mật khẩu"
                 name="password"
                 rules={[
-                  { required: true, message: 'Vui lòng nhập mật khẩu!' },
-                  { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' }
+                  { required: true, message: 'Vui lòng nhập mật khẩu!' }
                 ]}
               >
                 <Input.Password
@@ -178,8 +187,7 @@ const Login = () => {
                 label="Mật khẩu"
                 name="password"
                 rules={[
-                  { required: true, message: 'Vui lòng nhập mật khẩu!' },
-                  { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' }
+                  { required: true, message: 'Vui lòng nhập mật khẩu!' }
                 ]}
               >
                 <Input.Password

@@ -13,17 +13,11 @@ const OperatorRegister = () => {
     try {
       setLoading(true);
 
-      // Format data for operator registration
+      // Format data for operator registration (map to backend fields)
+      const { confirmPassword, phoneNumber, representativeName, representativePhone, ...restValues } = values;
       const formattedValues = {
-        companyName: values.companyName,
-        businessLicense: values.businessLicense,
-        taxCode: values.taxCode,
-        email: values.email,
-        phoneNumber: values.phoneNumber,
-        password: values.password,
-        address: values.address,
-        representativeName: values.representativeName,
-        representativePhone: values.representativePhone,
+        ...restValues,
+        phone: phoneNumber, // Rename phoneNumber to phone for backend
       };
 
       const response = await authService.operatorRegister(formattedValues);
@@ -149,7 +143,7 @@ const OperatorRegister = () => {
                 name="phoneNumber"
                 rules={[
                   { required: true, message: 'Vui lòng nhập số điện thoại!' },
-                  { pattern: /^(0|\+84)[0-9]{9}$/, message: 'Số điện thoại không hợp lệ!' }
+                  { pattern: /^(0|\+84)[0-9]{9,10}$/, message: 'Số điện thoại không hợp lệ!' }
                 ]}
               >
                 <Input
@@ -164,12 +158,9 @@ const OperatorRegister = () => {
               <Form.Item
                 label="Người đại diện"
                 name="representativeName"
-                rules={[
-                  { required: true, message: 'Vui lòng nhập tên người đại diện!' }
-                ]}
               >
                 <Input
-                  placeholder="Họ và tên"
+                  placeholder="Họ và tên (không bắt buộc)"
                   size="large"
                 />
               </Form.Item>
@@ -178,13 +169,12 @@ const OperatorRegister = () => {
                 label="SĐT người đại diện"
                 name="representativePhone"
                 rules={[
-                  { required: true, message: 'Vui lòng nhập SĐT người đại diện!' },
-                  { pattern: /^(0|\+84)[0-9]{9}$/, message: 'Số điện thoại không hợp lệ!' }
+                  { pattern: /^(0|\+84)[0-9]{9,10}$/, message: 'Số điện thoại không hợp lệ!' }
                 ]}
               >
                 <Input
                   prefix={<PhoneOutlined className="text-gray-400" />}
-                  placeholder="0xxx xxx xxx"
+                  placeholder="0xxx xxx xxx (không bắt buộc)"
                   size="large"
                 />
               </Form.Item>
@@ -202,12 +192,16 @@ const OperatorRegister = () => {
                 name="password"
                 rules={[
                   { required: true, message: 'Vui lòng nhập mật khẩu!' },
-                  { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' }
+                  { min: 8, message: 'Mật khẩu phải có ít nhất 8 ký tự!' },
+                  {
+                    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+                    message: 'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 số!'
+                  }
                 ]}
               >
                 <Input.Password
                   prefix={<LockOutlined className="text-gray-400" />}
-                  placeholder="Nhập mật khẩu"
+                  placeholder="Nhập mật khẩu (min 8 ký tự)"
                   size="large"
                 />
               </Form.Item>
