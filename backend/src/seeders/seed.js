@@ -509,6 +509,255 @@ const createTrips = async () => {
   console.log(`✅ Created ${sampleData.trips.length} trips`);
 };
 
+// Create sample bookings
+const createBookings = async () => {
+  console.log('📝 Creating bookings...');
+
+  const customers = sampleData.users.filter(u => u.role === 'customer');
+  const trip = sampleData.trips[0];
+  const operator = sampleData.operators[0];
+  const route = sampleData.routes[0];
+
+  const bookings = [
+    {
+      bookingCode: 'BK20250116001',
+      customerId: customers[0]._id,
+      tripId: trip._id,
+      operatorId: operator._id,
+      seats: [
+        {
+          seatNumber: 'A1',
+          passenger: {
+            fullName: customers[0].fullName,
+            phone: customers[0].phone,
+            idCard: '079095001234'
+          }
+        },
+        {
+          seatNumber: 'A2',
+          passenger: {
+            fullName: 'Nguyễn Văn B',
+            phone: '0909876543',
+            idCard: '079095005678'
+          }
+        }
+      ],
+      pickupPoint: route.pickupPoints[0],
+      dropoffPoint: route.dropoffPoints[0],
+      subtotal: 700000,
+      discount: 50000,
+      totalAmount: 650000,
+      voucherCode: 'WELCOME2025',
+      contactEmail: customers[0].email,
+      contactPhone: customers[0].phone,
+      notes: 'Vui lòng gọi điện trước 30 phút',
+      status: 'confirmed',
+      checkedInSeats: [],
+      refundAmount: 0
+    },
+    {
+      bookingCode: 'BK20250116002',
+      customerId: customers[1]._id,
+      tripId: trip._id,
+      operatorId: operator._id,
+      seats: [
+        {
+          seatNumber: 'B1',
+          passenger: {
+            fullName: customers[1].fullName,
+            phone: customers[1].phone,
+            idCard: '079095009012'
+          }
+        }
+      ],
+      pickupPoint: route.pickupPoints[1],
+      dropoffPoint: route.dropoffPoints[1],
+      subtotal: 350000,
+      discount: 0,
+      totalAmount: 350000,
+      contactEmail: customers[1].email,
+      contactPhone: customers[1].phone,
+      status: 'confirmed',
+      checkedInSeats: ['B1'],
+      checkedInAt: new Date(),
+      refundAmount: 0
+    }
+  ];
+
+  sampleData.bookings = await Booking.insertMany(bookings);
+
+  // Update trip occupied seats
+  await Trip.findByIdAndUpdate(trip._id, {
+    $set: {
+      occupiedSeats: ['A1', 'A2', 'B1'],
+      availableSeats: trip.availableSeats - 3
+    }
+  });
+
+  console.log(`✅ Created ${sampleData.bookings.length} bookings`);
+};
+
+// Create sample tickets
+const createTickets = async () => {
+  console.log('🎫 Creating tickets...');
+
+  const tickets = [];
+
+  // Create tickets for each booking
+  for (const booking of sampleData.bookings) {
+    const trip = await Trip.findById(booking.tripId).populate('routeId');
+    const operator = await BusOperator.findById(booking.operatorId);
+
+    for (const seat of booking.seats) {
+      const ticketCode = `TK${booking.bookingCode.substring(2)}${seat.seatNumber}`;
+
+      tickets.push({
+        ticketCode: ticketCode,
+        bookingId: booking._id,
+        customerId: booking.customerId,
+        tripId: booking.tripId,
+        seatNumber: seat.seatNumber,
+        passenger: seat.passenger,
+        qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${ticketCode}`,
+        qrData: JSON.stringify({
+          ticketCode: ticketCode,
+          bookingCode: booking.bookingCode,
+          seatNumber: seat.seatNumber,
+          passengerName: seat.passenger.fullName,
+          departureTime: trip.departureTime
+        }),
+        ticketPDF: `https://tequickride.vn/tickets/${ticketCode}.pdf`,
+        isValid: booking.status === 'confirmed' || booking.status === 'completed',
+        isUsed: booking.checkedInSeats.includes(seat.seatNumber),
+        usedAt: booking.checkedInSeats.includes(seat.seatNumber) ? booking.checkedInAt : null,
+        tripDetails: {
+          routeName: trip.routeId.routeName,
+          origin: trip.routeId.origin.city,
+          destination: trip.routeId.destination.city,
+          departureTime: trip.departureTime,
+          busNumber: (await Bus.findById(trip.busId)).busNumber,
+          operatorName: operator.companyName
+        }
+      });
+    }
+  }
+
+  sampleData.tickets = await Ticket.insertMany(tickets);
+  console.log(`✅ Created ${sampleData.tickets.length} tickets`);
+};
+
+// Create sample payments
+const createPayments = async () => {
+  console.log('💳 Creating payments...');
+
+  const payments = [];
+
+  // Create payment for each booking
+  for (const booking of sampleData.bookings) {
+    const paymentMethods = ['momo', 'vnpay', 'zalopay', 'visa'];
+    const method = paymentMethods[Math.floor(Math.random() * paymentMethods.length)];
+
+    let gatewayResponse = null;
+    let gatewayTransactionId = null;
+    let status = 'success';
+
+    if (booking.status === 'confirmed') {
+      status = 'success';
+
+      if (method === 'momo') {
+        gatewayTransactionId = `MOMO_${Date.now()}`;
+        gatewayResponse = {
+          partnerCode: 'MOMO',
+          orderId: booking.bookingCode,
+          requestId: Date.now().toString(),
+          amount: booking.totalAmount,
+          orderInfo: `Thanh toán vé xe TeQuickRide - ${booking.bookingCode}`,
+          orderType: 'momo_wallet',
+          transId: Math.floor(Math.random() * 9999999999),
+          resultCode: 0,
+          message: 'Successful.',
+          payType: 'qr',
+          responseTime: Date.now(),
+          extraData: '',
+          signature: 'a1b2c3d4e5f6g7h8i9j0'
+        };
+      } else if (method === 'vnpay') {
+        gatewayTransactionId = `VNPAY_${Date.now()}`;
+        gatewayResponse = {
+          vnp_Amount: booking.totalAmount * 100,
+          vnp_BankCode: 'NCB',
+          vnp_BankTranNo: `VNP${Math.floor(Math.random() * 99999999)}`,
+          vnp_CardType: 'ATM',
+          vnp_OrderInfo: `Thanh toan ve xe TeQuickRide - ${booking.bookingCode}`,
+          vnp_PayDate: new Date().toISOString().replace(/[-:]/g, '').slice(0, 14),
+          vnp_ResponseCode: '00',
+          vnp_TmnCode: 'TEQUICKRIDE',
+          vnp_TransactionNo: Math.floor(Math.random() * 99999999).toString(),
+          vnp_TransactionStatus: '00',
+          vnp_TxnRef: booking.bookingCode,
+          vnp_SecureHash: 'z1y2x3w4v5u6t7s8r9q0'
+        };
+      }
+    }
+
+    payments.push({
+      transactionId: `TXN${Date.now()}${Math.floor(Math.random() * 9999)}`,
+      bookingId: booking._id,
+      customerId: booking.customerId,
+      amount: booking.totalAmount,
+      currency: 'VND',
+      paymentMethod: method,
+      gatewayTransactionId: gatewayTransactionId,
+      gatewayResponse: gatewayResponse,
+      status: status,
+      refundAmount: booking.refundAmount,
+      refundedAt: booking.refundAmount > 0 ? new Date() : null,
+      refundReason: booking.cancellationReason
+    });
+  }
+
+  sampleData.payments = await Payment.insertMany(payments);
+  console.log(`✅ Created ${sampleData.payments.length} payments`);
+};
+
+// Create sample reviews
+const createReviews = async () => {
+  console.log('⭐ Creating reviews...');
+
+  const reviews = [];
+
+  // Create review for confirmed bookings
+  const confirmedBookings = sampleData.bookings.filter(b => b.status === 'confirmed');
+
+  for (let i = 0; i < Math.min(2, confirmedBookings.length); i++) {
+    const booking = confirmedBookings[i];
+    const trip = await Trip.findById(booking.tripId);
+
+    reviews.push({
+      customerId: booking.customerId,
+      tripId: booking.tripId,
+      operatorId: booking.operatorId,
+      bookingId: booking._id,
+      rating: 4 + i, // 4 and 5 stars
+      title: i === 0 ? 'Chuyến đi tuyệt vời!' : 'Dịch vụ tốt',
+      comment: i === 0
+        ? 'Xe sạch sẽ, tài xế lái xe an toàn. Nhân viên phục vụ nhiệt tình. Sẽ tiếp tục ủng hộ!'
+        : 'Xe đúng giờ, tiện nghi đầy đủ. Giá cả hợp lý.',
+      serviceRating: 5,
+      driverRating: i === 0 ? 5 : 4,
+      vehicleRating: 4,
+      punctualityRating: 5,
+      images: [],
+      isApproved: true,
+      isHidden: false,
+      helpfulCount: Math.floor(Math.random() * 20)
+    });
+  }
+
+  sampleData.reviews = await Review.insertMany(reviews);
+  console.log(`✅ Created ${sampleData.reviews.length} reviews`);
+};
+
 // Create sample vouchers
 const createVouchers = async () => {
   console.log('🎫 Creating vouchers...');
@@ -658,6 +907,10 @@ const seedDatabase = async () => {
     await createRoutes();
     await createBuses();
     await createTrips();
+    await createBookings();
+    await createTickets();
+    await createPayments();
+    await createReviews();
     await createVouchers();
     await createLoyaltyPoints();
     await createNotifications();
@@ -671,6 +924,10 @@ const seedDatabase = async () => {
     console.log(`   - ${sampleData.routes.length} Routes`);
     console.log(`   - ${sampleData.buses.length} Buses`);
     console.log(`   - ${sampleData.trips.length} Trips`);
+    console.log(`   - ${sampleData.bookings.length} Bookings`);
+    console.log(`   - ${sampleData.tickets.length} Tickets`);
+    console.log(`   - ${sampleData.payments.length} Payments`);
+    console.log(`   - ${sampleData.reviews.length} Reviews`);
     console.log(`   - ${sampleData.vouchers.length} Vouchers`);
     console.log(`   - ${sampleData.loyaltyPoints.length} Loyalty Point Transactions`);
     console.log(`   - ${sampleData.notifications.length} Notifications`);
