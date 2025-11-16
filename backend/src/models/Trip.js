@@ -16,6 +16,14 @@ const tripSchema = new mongoose.Schema({
     ref: 'Bus',
     required: true
   },
+  driverId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Staff'
+  },
+  managerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Staff'
+  },
 
   // Trip Code
   tripCode: {
@@ -54,16 +62,6 @@ const tripSchema = new mongoose.Schema({
     lockedUntil: Date,
     sessionId: String
   }],
-
-  // Staff Assignment
-  driver: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Staff'
-  },
-  tripManager: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Staff'
-  },
 
   // Status
   status: {
