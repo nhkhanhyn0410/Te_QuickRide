@@ -125,7 +125,7 @@ app.use((err, req, res, next) => {
   // Mongoose duplicate key error
   if (err.code === 11000) {
     const field = Object.keys(err.keyPattern)[0];
-    return res.status(400).json({
+    return res.status(409).json({
       success: false,
       message: `${field} already exists`
     });

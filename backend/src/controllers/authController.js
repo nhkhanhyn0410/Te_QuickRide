@@ -323,7 +323,7 @@ export const verifyPhone = asyncHandler(async (req, res) => {
     throw new BadRequestError('Phone already verified');
   }
 
-  if (!user.phoneVerificationOTP || user.otpExpires < Date.now()) {
+  if (!user.phoneVerificationOTP || !user.otpExpires || new Date(user.otpExpires) < new Date()) {
     throw new BadRequestError('OTP expired. Please request a new one.');
   }
 
