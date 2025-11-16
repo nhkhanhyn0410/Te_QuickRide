@@ -15,18 +15,17 @@ const router = express.Router();
 // Public routes
 router.get('/popular', getPopularRoutes);
 
-// Protected routes - Operator only
+// Protected routes
 router.use(protect);
-router.use(restrictTo('operator'));
-router.use(requireApproval);
 
-router.post('/', createRoute);
-router.get('/my', getMyRoutes);
-router.get('/:id', getRouteById);
-router.put('/:id', updateRoute);
-router.delete('/:id', deleteRoute);
-
-// Admin routes
+// Admin routes - MUST come before operator routes for '/' path
 router.get('/', restrictTo('admin'), getRoutes);
+
+// Operator routes
+router.post('/', restrictTo('operator'), requireApproval, createRoute);
+router.get('/my', restrictTo('operator'), requireApproval, getMyRoutes);
+router.get('/:id', restrictTo('operator'), requireApproval, getRouteById);
+router.put('/:id', restrictTo('operator'), requireApproval, updateRoute);
+router.delete('/:id', restrictTo('operator'), requireApproval, deleteRoute);
 
 export default router;

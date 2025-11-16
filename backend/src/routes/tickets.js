@@ -27,6 +27,9 @@ router.get('/booking/:bookingId',
   getBookingTickets
 );
 
+// Operator statistics - MUST be before /:id routes to avoid conflicts
+router.get('/statistics/operator', restrictTo('operator'), getTicketStatistics);
+
 // Ticket details and download
 router.get('/:id',
   param('id').isMongoId().withMessage('Invalid ticket ID'),
@@ -54,8 +57,5 @@ router.post('/:id/checkin',
   validate,
   checkinPassenger
 );
-
-// Operator statistics
-router.get('/statistics/operator', restrictTo('operator'), getTicketStatistics);
 
 export default router;
