@@ -25,6 +25,8 @@ import {
   MyTickets,
   TicketDetail,
   Notifications,
+  MyReviews,
+  WriteReview,
 } from './pages/customer';
 
 // Operator Pages
@@ -37,6 +39,7 @@ import {
   OperatorProfile,
   Analytics as OperatorAnalytics,
   Bookings as OperatorBookings,
+  Reviews as OperatorReviews,
 } from './pages/operator';
 
 // Admin Pages
@@ -305,6 +308,41 @@ function App() {
                 <ProtectedRoute requireAuth={true}>
                   <Layout>
                     <Notifications />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Customer Reviews Routes */}
+            <Route
+              path="/customer/reviews"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <MyReviews />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/bookings/:bookingId/review"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <WriteReview />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Operator Reviews Route */}
+            <Route
+              path="/operator/reviews"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <OperatorReviews />
                   </Layout>
                 </ProtectedRoute>
               }

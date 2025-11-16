@@ -7,3 +7,4 @@ export { default as ManageTrips } from './ManageTrips';
 export { default as OperatorProfile } from './OperatorProfile';
 export { default as Analytics } from './Analytics';
 export { default as Bookings } from './Bookings';
+export { default as Reviews } from './Reviews';
