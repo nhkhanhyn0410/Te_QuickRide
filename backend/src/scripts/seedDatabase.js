@@ -217,45 +217,63 @@ const seedDatabase = async () => {
     // ==================== STAFF ====================
     console.log('Creating staff members...');
 
+    const staffPassword = await hashPassword('Staff@123');
+
     const staff = await Staff.insertMany([
       {
         operatorId: operators[0]._id,
+        employeeCode: 'EMP000001',
         fullName: 'Phạm Văn Tài',
         phone: '0905555555',
         email: 'phamvantai@futa.vn',
+        password: staffPassword,
         role: 'driver',
         licenseNumber: 'DL-001-2020',
-        licenseType: 'D',
         licenseExpiry: new Date('2028-12-31'),
         dateOfBirth: new Date('1985-05-10'),
-        gender: 'male',
-        address: 'Quận 1, TP.HCM',
-        isActive: true
+        address: {
+          street: '123 Nguyễn Huệ',
+          city: 'Hồ Chí Minh',
+          province: 'TP. Hồ Chí Minh'
+        },
+        hireDate: new Date('2020-01-15'),
+        status: 'active'
       },
       {
         operatorId: operators[0]._id,
+        employeeCode: 'EMP000002',
         fullName: 'Lê Thị Mai',
         phone: '0906666666',
         email: 'lethimai@futa.vn',
-        role: 'manager',
+        password: staffPassword,
+        role: 'trip_manager',
         dateOfBirth: new Date('1990-08-15'),
-        gender: 'female',
-        address: 'Quận 3, TP.HCM',
-        isActive: true
+        address: {
+          street: '456 Lê Lợi',
+          city: 'Hồ Chí Minh',
+          province: 'TP. Hồ Chí Minh'
+        },
+        hireDate: new Date('2019-03-01'),
+        status: 'active'
       },
       {
         operatorId: operators[1]._id,
+        employeeCode: 'EMP000003',
         fullName: 'Hoàng Minh Tuấn',
         phone: '0907777777',
         email: 'hoangminhtuan@mailinh.vn',
+        password: staffPassword,
         role: 'driver',
         licenseNumber: 'DL-002-2019',
-        licenseType: 'D',
         licenseExpiry: new Date('2027-06-30'),
         dateOfBirth: new Date('1988-03-20'),
-        gender: 'male',
-        address: 'Quận 7, TP.HCM',
-        isActive: true
+        address: {
+          street: '789 Nguyễn Văn Linh',
+          city: 'Hồ Chí Minh',
+          province: 'TP. Hồ Chí Minh'
+        },
+        hireDate: new Date('2019-06-10'),
+        status: 'active'
       }
     ]);
 
@@ -786,6 +804,11 @@ const seedDatabase = async () => {
     console.log('  Email: contact@futa.vn');
     console.log('  Password: Operator@123');
     console.log('  (All operators same password)');
+    console.log('');
+    console.log('Staff:');
+    console.log('  Email: phamvantai@futa.vn');
+    console.log('  Password: Staff@123');
+    console.log('  (All staff same password)');
     console.log('═══════════════════════════════════════\n');
 
   } catch (error) {
