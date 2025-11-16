@@ -54,6 +54,9 @@ import tripRoutes from './routes/trips.js';
 import bookingRoutes from './routes/bookings.js';
 import paymentRoutes from './routes/payments.js';
 import ticketRoutes from './routes/tickets.js';
+import busRoutes from './routes/buses.js';
+import routeRoutes from './routes/routes.js';
+import staffRoutes from './routes/staff.js';
 
 // API routes
 app.get('/api', (req, res) => {
@@ -68,7 +71,10 @@ app.get('/api', (req, res) => {
       trips: '/api/trips',
       bookings: '/api/bookings',
       payments: '/api/payments',
-      tickets: '/api/tickets'
+      tickets: '/api/tickets',
+      buses: '/api/buses',
+      routes: '/api/routes',
+      staff: '/api/staff'
     }
   });
 });
@@ -81,6 +87,9 @@ app.use('/api/trips', tripRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/tickets', ticketRoutes);
+app.use('/api/buses', busRoutes);
+app.use('/api/routes', routeRoutes);
+app.use('/api/staff', staffRoutes);
 
 // 404 handler
 app.use((req, res) => {
