@@ -10,23 +10,45 @@ import {
   getVoucherStatistics
 } from '../controllers/voucherController.js';
 import { protect, restrictTo, optionalAuth } from '../middlewares/auth.js';
+import { param } from 'express-validator';
+import { validate } from '../middlewares/validate.js';
 
 const router = express.Router();
 
-// Public routes
+// Public routes - specific routes first
 router.get('/available', optionalAuth, getAvailableVouchers);
-router.get('/:code', getVoucherByCode);
 
 // Protected routes - Customer
-router.use(protect);
-router.post('/validate', restrictTo('customer'), validateVoucher);
+router.post('/validate', protect, restrictTo('customer'), validateVoucher);
 
-// Admin routes
-router.use(restrictTo('admin'));
-router.post('/', createVoucher);
-router.get('/', getAllVouchers);
-router.put('/:id', updateVoucher);
-router.delete('/:id', deleteVoucher);
-router.get('/:id/statistics', getVoucherStatistics);
+// Admin routes - specific routes before parameterized routes
+router.post('/', protect, restrictTo('admin'), createVoucher);
+router.get('/', protect, restrictTo('admin'), getAllVouchers);
+
+// Routes with parameters - specific patterns before generic patterns
+router.get('/:id/statistics',
+  param('id').isMongoId().withMessage('Invalid voucher ID'),
+  validate,
+  protect,
+  restrictTo('admin'),
+  getVoucherStatistics
+);
+router.put('/:id',
+  param('id').isMongoId().withMessage('Invalid voucher ID'),
+  validate,
+  protect,
+  restrictTo('admin'),
+  updateVoucher
+);
+router.delete('/:id',
+  param('id').isMongoId().withMessage('Invalid voucher ID'),
+  validate,
+  protect,
+  restrictTo('admin'),
+  deleteVoucher
+);
+
+// Generic parameterized route last - public route (code can be any string, not just ObjectId)
+router.get('/:code', getVoucherByCode);
 
 export default router;

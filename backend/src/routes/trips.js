@@ -23,6 +23,11 @@ const router = express.Router();
 
 // Public routes (with optional auth for better experience)
 router.get('/search', searchTripsValidator, validate, optionalAuth, searchTrips);
+
+// Operator routes - must come before /:id routes to avoid conflicts
+router.get('/my-trips', protect, restrictTo('operator'), requireApproval, getMyTrips);
+
+// Public parameterized routes
 router.get('/:id', getTripValidator, validate, optionalAuth, getTripDetails);
 router.get('/:id/seats', getTripValidator, validate, getAvailableSeats);
 
@@ -30,14 +35,9 @@ router.get('/:id/seats', getTripValidator, validate, getAvailableSeats);
 router.post('/:id/lock-seats', lockSeats);
 router.post('/:id/release-seats', releaseSeats);
 
-// Operator routes
-router.use(protect);
-router.use(restrictTo('operator'));
-router.use(requireApproval);
-
-router.post('/', createTripValidator, validate, createTrip);
-router.get('/my/trips', getMyTrips);
-router.put('/:id', updateTripValidator, validate, updateTrip);
-router.delete('/:id', cancelTrip);
+// Operator routes for create/update/delete
+router.post('/', protect, restrictTo('operator'), requireApproval, createTripValidator, validate, createTrip);
+router.put('/:id', protect, restrictTo('operator'), requireApproval, updateTripValidator, validate, updateTrip);
+router.delete('/:id', protect, restrictTo('operator'), requireApproval, cancelTrip);
 
 export default router;

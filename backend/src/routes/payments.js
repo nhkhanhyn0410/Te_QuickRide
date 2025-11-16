@@ -36,8 +36,9 @@ router.post('/zalopay/callback', zaloPayCallback);
 router.use(protect);
 router.use(restrictTo('customer', 'admin'));
 
-router.get('/:id/status', getPaymentStatus);
+// Specific routes must come before parameterized routes
 router.get('/my-payments', getMyPayments);
+router.get('/:id/status', getPaymentStatus);
 
 // Refund (admin only)
 router.post('/:id/refund', restrictTo('admin'), processRefund);
