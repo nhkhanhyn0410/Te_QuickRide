@@ -9,3 +9,4 @@ export { default as BookingDetail } from './BookingDetail';
 export { default as MyProfile } from './MyProfile';
 export { default as MyTickets } from './MyTickets';
 export { default as TicketDetail } from './TicketDetail';
+export { default as Notifications } from './Notifications';

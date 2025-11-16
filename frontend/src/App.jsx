@@ -9,7 +9,7 @@ import { Header, Footer, ProtectedRoute } from './components/common';
 import { Login, Register, OperatorRegister, ForgotPassword } from './pages/auth';
 
 // Public Pages
-import { About, Contact } from './pages/public';
+import { About, Contact, Help } from './pages/public';
 
 // Customer Pages
 import {
@@ -24,6 +24,7 @@ import {
   MyProfile,
   MyTickets,
   TicketDetail,
+  Notifications,
 } from './pages/customer';
 
 // Operator Pages
@@ -33,11 +34,13 @@ import {
   Routes as OperatorRoutes,
   CreateTrip,
   ManageTrips,
+  OperatorProfile,
 } from './pages/operator';
 
 // Admin Pages
 import {
   Dashboard as AdminDashboard,
+  ManageOperators,
 } from './pages/admin';
 
 // Layout Component
@@ -257,6 +260,40 @@ function App() {
               }
             />
 
+            {/* Operator Additional Routes */}
+            <Route
+              path="/operator/profile"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <OperatorProfile />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Customer Notifications Route */}
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <Notifications />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Help Page */}
+            <Route
+              path="/help"
+              element={
+                <Layout>
+                  <Help />
+                </Layout>
+              }
+            />
+
             {/* Admin Protected Routes */}
             <Route
               path="/admin/dashboard"
@@ -264,6 +301,17 @@ function App() {
                 <ProtectedRoute requireAuth={true} requiredRole="admin">
                   <Layout>
                     <AdminDashboard />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/operators"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="admin">
+                  <Layout>
+                    <ManageOperators />
                   </Layout>
                 </ProtectedRoute>
               }
