@@ -255,35 +255,162 @@ const createRoutes = async () => {
     {
       operatorId: operator._id,
       routeName: 'Hà Nội - Đà Nẵng',
+      routeCode: 'HN-DN-001',
       origin: {
         city: 'Hà Nội',
-        address: 'Bến xe Giáp Bát, Hoàng Mai, Hà Nội'
+        province: 'Hà Nội',
+        station: 'Bến xe Giáp Bát',
+        address: 'Bến xe Giáp Bát, Hoàng Mai, Hà Nội',
+        coordinates: {
+          lat: 20.9953,
+          lng: 105.8243
+        }
       },
       destination: {
         city: 'Đà Nẵng',
-        address: 'Bến xe Đà Nẵng, Hải Châu, Đà Nẵng'
+        province: 'Đà Nẵng',
+        station: 'Bến xe Đà Nẵng',
+        address: 'Bến xe Đà Nẵng, Hải Châu, Đà Nẵng',
+        coordinates: {
+          lat: 16.0544,
+          lng: 108.2022
+        }
       },
       distance: 763,
       estimatedDuration: 720,
-      pickupPoints: ['Bến xe Giáp Bát', 'Ngã tư Sở', 'Cầu Giấy'],
-      dropoffPoints: ['Bến xe Đà Nẵng', 'Công viên APEC', 'Ngã ba Huế'],
+      pickupPoints: [
+        {
+          name: 'Bến xe Giáp Bát',
+          address: 'Giải Phóng, Hoàng Mai, Hà Nội',
+          coordinates: { lat: 20.9953, lng: 105.8243 }
+        },
+        {
+          name: 'Ngã tư Sở',
+          address: 'Ngã tư Sở, Đống Đa, Hà Nội',
+          coordinates: { lat: 21.0101, lng: 105.8270 }
+        },
+        {
+          name: 'Cầu Giấy',
+          address: 'Cầu Giấy, Hà Nội',
+          coordinates: { lat: 21.0325, lng: 105.7943 }
+        }
+      ],
+      dropoffPoints: [
+        {
+          name: 'Bến xe Đà Nẵng',
+          address: 'Bến xe Đà Nẵng, Hải Châu, Đà Nẵng',
+          coordinates: { lat: 16.0544, lng: 108.2022 }
+        },
+        {
+          name: 'Công viên APEC',
+          address: 'Công viên APEC, Ngũ Hành Sơn, Đà Nẵng',
+          coordinates: { lat: 16.0155, lng: 108.2471 }
+        },
+        {
+          name: 'Ngã ba Huế',
+          address: 'Ngã ba Huế, Hải Châu, Đà Nẵng',
+          coordinates: { lat: 16.0678, lng: 108.2208 }
+        }
+      ],
       isActive: true
     },
     {
       operatorId: operator._id,
       routeName: 'Hồ Chí Minh - Nha Trang',
+      routeCode: 'HCM-NT-001',
       origin: {
         city: 'Hồ Chí Minh',
-        address: 'Bến xe Miền Đông, Bình Thạnh, TP.HCM'
+        province: 'Hồ Chí Minh',
+        station: 'Bến xe Miền Đông',
+        address: 'Bến xe Miền Đông, Bình Thạnh, TP.HCM',
+        coordinates: {
+          lat: 10.8142,
+          lng: 106.7106
+        }
       },
       destination: {
         city: 'Nha Trang',
-        address: 'Bến xe Nha Trang, Khánh Hòa'
+        province: 'Khánh Hòa',
+        station: 'Bến xe Nha Trang',
+        address: 'Bến xe Nha Trang, Khánh Hòa',
+        coordinates: {
+          lat: 12.2585,
+          lng: 109.1898
+        }
       },
       distance: 448,
       estimatedDuration: 480,
-      pickupPoints: ['Bến xe Miền Đông', 'Thủ Đức', 'Dĩ An'],
-      dropoffPoints: ['Bến xe Nha Trang', 'Trung tâm TP Nha Trang'],
+      pickupPoints: [
+        {
+          name: 'Bến xe Miền Đông',
+          address: 'Bến xe Miền Đông, Bình Thạnh, TP.HCM',
+          coordinates: { lat: 10.8142, lng: 106.7106 }
+        },
+        {
+          name: 'Thủ Đức',
+          address: 'Quốc lộ 1A, Thủ Đức, TP.HCM',
+          coordinates: { lat: 10.8505, lng: 106.7690 }
+        },
+        {
+          name: 'Dĩ An',
+          address: 'Quốc lộ 1K, Dĩ An, Bình Dương',
+          coordinates: { lat: 10.9033, lng: 106.7651 }
+        }
+      ],
+      dropoffPoints: [
+        {
+          name: 'Bến xe Nha Trang',
+          address: 'Bến xe Nha Trang, Khánh Hòa',
+          coordinates: { lat: 12.2585, lng: 109.1898 }
+        },
+        {
+          name: 'Trung tâm TP Nha Trang',
+          address: 'Trần Phú, Nha Trang, Khánh Hòa',
+          coordinates: { lat: 12.2388, lng: 109.1967 }
+        }
+      ],
+      isActive: true
+    },
+    {
+      operatorId: operator._id,
+      routeName: 'Hà Nội - Hải Phòng',
+      routeCode: 'HN-HP-001',
+      origin: {
+        city: 'Hà Nội',
+        province: 'Hà Nội',
+        station: 'Bến xe Giáp Bát',
+        address: 'Bến xe Giáp Bát, Hoàng Mai, Hà Nội',
+        coordinates: {
+          lat: 20.9953,
+          lng: 105.8243
+        }
+      },
+      destination: {
+        city: 'Hải Phòng',
+        province: 'Hải Phòng',
+        station: 'Bến xe Niệm Nghĩa',
+        address: 'Bến xe Niệm Nghĩa, Hải Phòng',
+        coordinates: {
+          lat: 20.8449,
+          lng: 106.6881
+        }
+      },
+      distance: 120,
+      estimatedDuration: 120,
+      pickupPoints: [
+        {
+          name: 'Bến xe Giáp Bát',
+          address: 'Giải Phóng, Hoàng Mai, Hà Nội',
+          coordinates: { lat: 20.9953, lng: 105.8243 }
+        }
+      ],
+      dropoffPoints: [
+        {
+          name: 'Bến xe Niệm Nghĩa',
+          address: 'Bến xe Niệm Nghĩa, Hải Phòng',
+          coordinates: { lat: 20.8449, lng: 106.6881 }
+        }
+      ],
       isActive: true
     }
   ];
