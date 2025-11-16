@@ -12,7 +12,7 @@ import {
 import { PassengerForm } from '../../components/customer';
 import { Loading, ErrorMessage } from '../../components/common';
 import bookingService from '../../services/bookingService';
-import { setBookingData } from '../../redux/slices/bookingSlice';
+// import { setBookingData } from '../../redux/slices/bookingSlice';
 import dayjs from 'dayjs';
 
 const Booking = () => {

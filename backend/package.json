@@ -8,8 +8,7 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "test": "jest --coverage",
-    "test:watch": "jest --watch",
-    "seed": "node src/seeders/seed.js"
+    "test:watch": "jest --watch"
   },
   "keywords": [
     "bus",
