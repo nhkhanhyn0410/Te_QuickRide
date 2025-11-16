@@ -4,3 +4,5 @@ export { default as TripDetails } from './TripDetails';
 export { default as Booking } from './Booking';
 export { default as Payment } from './Payment';
 export { default as MyBookings } from './MyBookings';
+export { default as BookingSuccess } from './BookingSuccess';
+export { default as BookingDetail } from './BookingDetail';

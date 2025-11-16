@@ -6,7 +6,10 @@ import viVN from 'antd/locale/vi_VN';
 import { Header, Footer, ProtectedRoute } from './components/common';
 
 // Auth Pages
-import { Login, Register, OperatorRegister } from './pages/auth';
+import { Login, Register, OperatorRegister, ForgotPassword } from './pages/auth';
+
+// Public Pages
+import { About, Contact } from './pages/public';
 
 // Customer Pages
 import {
@@ -16,7 +19,17 @@ import {
   Booking,
   Payment,
   MyBookings,
+  BookingSuccess,
+  BookingDetail,
 } from './pages/customer';
+
+// Operator Pages
+import {
+  Dashboard as OperatorDashboard,
+  Buses,
+  Routes as OperatorRoutes,
+  CreateTrip,
+} from './pages/operator';
 
 // Layout Component
 const Layout = ({ children }) => {
@@ -37,17 +50,36 @@ function App() {
       <ConfigProvider locale={viVN}>
         <Router>
           <Routes>
-            {/* Public Routes */}
+            {/* Auth Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/operator/register" element={<OperatorRegister />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
-            {/* Customer Routes with Layout */}
+            {/* Public Routes with Layout */}
             <Route
               path="/"
               element={
                 <Layout>
                   <Home />
+                </Layout>
+              }
+            />
+
+            <Route
+              path="/about"
+              element={
+                <Layout>
+                  <About />
+                </Layout>
+              }
+            />
+
+            <Route
+              path="/contact"
+              element={
+                <Layout>
+                  <Contact />
                 </Layout>
               }
             />
@@ -70,7 +102,7 @@ function App() {
               }
             />
 
-            {/* Protected Routes - Require Authentication */}
+            {/* Customer Protected Routes */}
             <Route
               path="/booking"
               element={
@@ -94,11 +126,78 @@ function App() {
             />
 
             <Route
+              path="/booking/success/:bookingId"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <BookingSuccess />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
               path="/my-bookings"
               element={
                 <ProtectedRoute requireAuth={true}>
                   <Layout>
                     <MyBookings />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/customer/bookings/:bookingId"
+              element={
+                <ProtectedRoute requireAuth={true}>
+                  <Layout>
+                    <BookingDetail />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Operator Protected Routes */}
+            <Route
+              path="/operator/dashboard"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <OperatorDashboard />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/operator/buses"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <Buses />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/operator/routes"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <OperatorRoutes />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/operator/trips/create"
+              element={
+                <ProtectedRoute requireAuth={true} requiredRole="operator">
+                  <Layout>
+                    <CreateTrip />
                   </Layout>
                 </ProtectedRoute>
               }
