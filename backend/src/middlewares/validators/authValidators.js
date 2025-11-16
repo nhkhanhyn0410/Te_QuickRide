@@ -128,12 +128,10 @@ export const resetPasswordValidator = [
  * Validation rules for operator login
  */
 export const operatorLoginValidator = [
-  body('email')
+  body('emailOrPhone')
     .trim()
     .notEmpty()
-    .withMessage('Email is required')
-    .isEmail()
-    .withMessage('Please provide a valid email'),
+    .withMessage('Email is required'),
 
   body('password')
     .notEmpty()

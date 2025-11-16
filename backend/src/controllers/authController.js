@@ -139,10 +139,10 @@ export const login = asyncHandler(async (req, res) => {
  * @access  Public
  */
 export const operatorLogin = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { emailOrPhone, password } = req.body;
 
-  // Find operator
-  const operator = await BusOperator.findOne({ email }).select('+password');
+  // Find operator (operators only login with email)
+  const operator = await BusOperator.findOne({ email: emailOrPhone }).select('+password');
 
   if (!operator) {
     throw new AuthenticationError('Invalid credentials');
