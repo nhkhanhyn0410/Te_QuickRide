@@ -5,3 +5,4 @@ export { default as ManageUsers } from './ManageUsers';
 export { default as ManageVouchers } from './ManageVouchers';
 export { default as ManageBookings } from './ManageBookings';
 export { default as Settings } from './Settings';
+export { default as AdminGuide } from './AdminGuide';
