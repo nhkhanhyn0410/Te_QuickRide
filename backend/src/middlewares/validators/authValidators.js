@@ -125,6 +125,22 @@ export const resetPasswordValidator = [
 ];
 
 /**
+ * Validation rules for operator login
+ */
+export const operatorLoginValidator = [
+  body('email')
+    .trim()
+    .notEmpty()
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('Please provide a valid email'),
+
+  body('password')
+    .notEmpty()
+    .withMessage('Password is required')
+];
+
+/**
  * Validation rules for refresh token
  */
 export const refreshTokenValidator = [

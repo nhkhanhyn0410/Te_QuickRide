@@ -14,6 +14,7 @@ import {
 import {
   registerValidator,
   loginValidator,
+  operatorLoginValidator,
   changePasswordValidator,
   forgotPasswordValidator,
   resetPasswordValidator,
@@ -27,7 +28,7 @@ const router = express.Router();
 // Public routes
 router.post('/register', registerValidator, validate, register);
 router.post('/login', loginValidator, validate, login);
-router.post('/operator/login', loginValidator, validate, operatorLogin);
+router.post('/operator/login', operatorLoginValidator, validate, operatorLogin);
 router.post('/refresh-token', refreshTokenValidator, validate, refreshToken);
 router.post('/forgot-password', forgotPasswordValidator, validate, forgotPassword);
 router.post('/reset-password', resetPasswordValidator, validate, resetPassword);
