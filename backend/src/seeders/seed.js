@@ -429,18 +429,26 @@ const createBuses = async () => {
     {
       operatorId: operator._id,
       busNumber: '51B-12345',
-      busType: 'Giường nằm',
+      busType: 'sleeper',
       totalSeats: 40,
       seatLayout: {
+        floors: 2,
         rows: 10,
         columns: 4,
-        seats: Array.from({ length: 40 }, (_, i) => ({
-          seatNumber: `A${i + 1}`,
-          position: { row: Math.floor(i / 4), column: i % 4 },
-          type: 'sleeper'
-        }))
+        layout: [
+          ['1A', '1B', 'X', '1C'],
+          ['2A', '2B', 'X', '2C'],
+          ['3A', '3B', 'X', '3C'],
+          ['4A', '4B', 'X', '4C'],
+          ['5A', '5B', 'X', '5C'],
+          ['6A', '6B', 'X', '6C'],
+          ['7A', '7B', 'X', '7C'],
+          ['8A', '8B', 'X', '8C'],
+          ['9A', '9B', 'X', '9C'],
+          ['10A', '10B', 'X', '10C']
+        ]
       },
-      amenities: ['WiFi', 'Điều hòa', 'Nước uống', 'Toilet', 'TV', 'Sạc điện', 'Chăn gối'],
+      amenities: ['wifi', 'ac', 'water', 'toilet', 'tv', 'usb_charger', 'blanket'],
       images: [
         'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957',
         'https://images.unsplash.com/photo-1570125909232-eb263c188f7e'
@@ -450,21 +458,53 @@ const createBuses = async () => {
     {
       operatorId: operator._id,
       busNumber: '51B-67890',
-      busType: 'Limousine',
+      busType: 'limousine',
       totalSeats: 24,
       seatLayout: {
+        floors: 1,
         rows: 6,
         columns: 4,
-        seats: Array.from({ length: 24 }, (_, i) => ({
-          seatNumber: `B${i + 1}`,
-          position: { row: Math.floor(i / 4), column: i % 4 },
-          type: 'vip'
-        }))
+        layout: [
+          ['A1', 'A2', 'X', 'A3'],
+          ['B1', 'B2', 'X', 'B3'],
+          ['C1', 'C2', 'X', 'C3'],
+          ['D1', 'D2', 'X', 'D3'],
+          ['E1', 'E2', 'X', 'E3'],
+          ['F1', 'F2', 'X', 'F3']
+        ]
       },
-      amenities: ['WiFi', 'Điều hòa', 'Nước uống', 'Toilet', 'Massage', 'Sạc điện', 'Chăn gối'],
+      amenities: ['wifi', 'ac', 'water', 'toilet', 'usb_charger', 'blanket', 'reading_light'],
       images: [
         'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957'
       ],
+      isActive: true
+    },
+    {
+      operatorId: operator._id,
+      busNumber: '51B-11111',
+      busType: 'seater',
+      totalSeats: 45,
+      seatLayout: {
+        floors: 1,
+        rows: 12,
+        columns: 4,
+        layout: [
+          ['1', '2', 'X', '3'],
+          ['4', '5', 'X', '6'],
+          ['7', '8', 'X', '9'],
+          ['10', '11', 'X', '12'],
+          ['13', '14', 'X', '15'],
+          ['16', '17', 'X', '18'],
+          ['19', '20', 'X', '21'],
+          ['22', '23', 'X', '24'],
+          ['25', '26', 'X', '27'],
+          ['28', '29', 'X', '30'],
+          ['31', '32', 'X', '33'],
+          ['34', '35', '36', '37']
+        ]
+      },
+      amenities: ['ac', 'water', 'usb_charger'],
+      images: [],
       isActive: true
     }
   ];
@@ -479,7 +519,7 @@ const createTrips = async () => {
 
   const operator = sampleData.operators[0];
   const route = sampleData.routes[0];
-  const bus = sampleData.buses[0];
+  const bus = sampleData.buses[1]; // Use limousine bus with A1, A2, A3, B1, B2, B3 seats
   const driver = sampleData.staff.find(s => s.role === 'driver');
   const manager = sampleData.staff.find(s => s.role === 'trip_manager');
 
@@ -498,7 +538,7 @@ const createTrips = async () => {
       departureTime: tomorrow,
       arrivalTime: new Date(tomorrow.getTime() + 12 * 60 * 60 * 1000),
       basePrice: 350000,
-      availableSeats: 40,
+      availableSeats: 24, // Limousine has 24 seats
       occupiedSeats: [],
       lockedSeats: [],
       status: 'scheduled'
