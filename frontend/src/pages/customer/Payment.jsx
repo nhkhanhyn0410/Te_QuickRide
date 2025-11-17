@@ -334,7 +334,7 @@ const Payment = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Giá vé:</span>
                   <span className="font-medium">
-                    {formatPrice(booking.trip?.baseFare)}
+                    {formatPrice(booking.trip?.basePrice || booking.trip?.baseFare || 0)}
                   </span>
                 </div>
               </div>

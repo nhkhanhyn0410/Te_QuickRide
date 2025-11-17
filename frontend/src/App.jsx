@@ -30,6 +30,11 @@ import {
   MyVouchers,
 } from './pages/customer';
 
+// Payment Demo Pages
+import VNPayDemo from './pages/payment/VNPayDemo';
+import MoMoDemo from './pages/payment/MoMoDemo';
+import ZaloPayDemo from './pages/payment/ZaloPayDemo';
+
 // Operator Pages
 import {
   Dashboard as OperatorDashboard,
@@ -178,6 +183,11 @@ function App() {
                 </ProtectedRoute>
               }
             />
+
+            {/* Payment Gateway Demo Routes - No Layout (Full Page) */}
+            <Route path="/payment/vnpay/demo" element={<VNPayDemo />} />
+            <Route path="/payment/momo/demo" element={<MoMoDemo />} />
+            <Route path="/payment/zalopay/demo" element={<ZaloPayDemo />} />
 
             <Route
               path="/booking/success/:bookingId"

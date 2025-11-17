@@ -233,7 +233,7 @@ const TripDetails = () => {
                 <div className="text-center mb-4">
                   <div className="text-gray-600 mb-1">Giá vé</div>
                   <div className="text-3xl font-bold text-blue-600">
-                    {formatPrice(trip.baseFare)}
+                    {formatPrice(trip.basePrice || trip.baseFare || 0)}
                   </div>
                   <div className="text-sm text-gray-600">/ người</div>
                 </div>
@@ -262,7 +262,7 @@ const TripDetails = () => {
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Tạm tính:</span>
                         <span className="font-semibold">
-                          {formatPrice(selectedSeats.length * trip.baseFare)}
+                          {formatPrice(selectedSeats.length * (trip.basePrice || trip.baseFare || 0))}
                         </span>
                       </div>
                     </div>
