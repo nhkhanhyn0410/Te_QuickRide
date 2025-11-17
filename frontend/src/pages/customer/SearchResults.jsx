@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Form, Input, DatePicker, Button, Card, Row, Col, Select, Slider, Checkbox, Empty, message } from 'antd';
+import { Form, Input, DatePicker, Button, Card, Row, Col, Select, Slider, Checkbox, Empty, message, Pagination } from 'antd';
 import {
   SearchOutlined,
   EnvironmentOutlined,
@@ -24,6 +24,11 @@ const SearchResults = () => {
   const [filteredTrips, setFilteredTrips] = useState([]);
   const [error, setError] = useState(null);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50); // Tăng lên 50 để hiển thị nhiều chuyến hơn
+  const [totalTrips, setTotalTrips] = useState(0);
+
   // Filter states
   const [priceRange, setPriceRange] = useState([0, 1000000]);
   const [selectedBusTypes, setSelectedBusTypes] = useState([]);
@@ -42,9 +47,17 @@ const SearchResults = () => {
         destination,
         departureDate: dayjs(departureDate),
       });
+      setCurrentPage(1); // Reset về trang 1 khi tìm kiếm mới
       searchTrips();
     }
   }, [origin, destination, departureDate]);
+
+  // Gọi API khi chuyển trang
+  useEffect(() => {
+    if (origin && destination && departureDate && currentPage > 1) {
+      searchTrips();
+    }
+  }, [currentPage]);
 
   useEffect(() => {
     applyFilters();
@@ -59,15 +72,24 @@ const SearchResults = () => {
         origin,
         destination,
         departureDate,
+        page: currentPage,
+        limit: pageSize,
       });
 
       if (response.success) {
-        setTrips(response.data.trips || []);
+        setTrips(response.data || []);
 
-        // Set initial price range based on results
-        if (response.data.trips && response.data.trips.length > 0) {
-          const prices = response.data.trips.map(t => t.baseFare);
-          setPriceRange([Math.min(...prices), Math.max(...prices)]);
+        // Lưu tổng số chuyến từ pagination
+        if (response.pagination) {
+          setTotalTrips(response.pagination.total || 0);
+        }
+
+        // Set initial price range based on results (chỉ ở trang đầu)
+        if (currentPage === 1 && response.data && response.data.length > 0) {
+          const prices = response.data.map(t => t.basePrice || t.baseFare || 0);
+          if (prices.length > 0) {
+            setPriceRange([Math.min(...prices), Math.max(...prices)]);
+          }
         }
       } else {
         setError(response.message || 'Không tìm thấy chuyến xe phù hợp');
@@ -85,20 +107,25 @@ const SearchResults = () => {
 
     // Filter by price range
     filtered = filtered.filter(
-      trip => trip.baseFare >= priceRange[0] && trip.baseFare <= priceRange[1]
+      trip => {
+        const price = trip.basePrice || trip.baseFare || 0;
+        return price >= priceRange[0] && price <= priceRange[1];
+      }
     );
 
     // Filter by bus type
     if (selectedBusTypes.length > 0) {
       filtered = filtered.filter(trip =>
-        selectedBusTypes.includes(trip.bus?.busType)
+        selectedBusTypes.includes(trip.bus?.type || trip.bus?.busType)
       );
     }
 
     // Filter by amenities
     if (selectedAmenities.length > 0) {
       filtered = filtered.filter(trip =>
-        selectedAmenities.every(amenity => trip.amenities?.includes(amenity))
+        selectedAmenities.every(amenity =>
+          trip.bus?.amenities?.includes(amenity) || trip.amenities?.includes(amenity)
+        )
       );
     }
 
@@ -106,9 +133,9 @@ const SearchResults = () => {
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'price-asc':
-          return a.baseFare - b.baseFare;
+          return (a.basePrice || a.baseFare || 0) - (b.basePrice || b.baseFare || 0);
         case 'price-desc':
-          return b.baseFare - a.baseFare;
+          return (b.basePrice || b.baseFare || 0) - (a.basePrice || a.baseFare || 0);
         case 'departureTime':
           return new Date(a.departureTime) - new Date(b.departureTime);
         case 'duration':
@@ -322,11 +349,33 @@ const SearchResults = () => {
             ) : (
               <>
                 <div className="mb-4 text-gray-600">
-                  Tìm thấy <span className="font-semibold text-blue-600">{filteredTrips.length}</span> chuyến xe
+                  Tìm thấy <span className="font-semibold text-blue-600">{totalTrips}</span> chuyến xe
+                  {filteredTrips.length < totalTrips && (
+                    <span className="ml-2 text-sm">
+                      (Hiển thị {filteredTrips.length} chuyến sau khi lọc)
+                    </span>
+                  )}
                 </div>
                 {filteredTrips.map((trip) => (
-                  <TripCard key={trip._id} trip={trip} />
+                  <TripCard key={trip._id || trip.id} trip={trip} />
                 ))}
+
+                {/* Pagination */}
+                {totalTrips > pageSize && (
+                  <div className="mt-8 flex justify-center">
+                    <Pagination
+                      current={currentPage}
+                      pageSize={pageSize}
+                      total={totalTrips}
+                      onChange={(page) => {
+                        setCurrentPage(page);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      showSizeChanger={false}
+                      showTotal={(total, range) => `${range[0]}-${range[1]} của ${total} chuyến`}
+                    />
+                  </div>
+                )}
               </>
             )}
           </Col>

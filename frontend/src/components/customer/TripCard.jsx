@@ -117,7 +117,7 @@ const TripCard = ({ trip }) => {
         <div className="md:col-span-2 text-center">
           <div className="mb-2">
             <div className="text-2xl font-bold text-blue-600">
-              {formatPrice(trip.baseFare)}
+              {formatPrice(trip.basePrice || trip.baseFare || 0)}
             </div>
             <div className="text-xs text-gray-500">/ người</div>
           </div>
