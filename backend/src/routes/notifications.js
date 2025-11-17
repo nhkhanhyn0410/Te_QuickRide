@@ -5,7 +5,9 @@ import {
   markAsRead,
   markAllAsRead,
   deleteNotification,
-  deleteAllNotifications
+  deleteAllNotifications,
+  getNotificationSettings,
+  updateNotificationSettings
 } from '../controllers/notificationController.js';
 import { protect } from '../middlewares/auth.js';
 
@@ -17,6 +19,8 @@ router.use(protect);
 // Specific routes before generic routes
 router.get('/unread-count', getUnreadCount);
 router.put('/read-all', markAllAsRead);
+router.get('/settings', getNotificationSettings);
+router.put('/settings', updateNotificationSettings);
 router.get('/', getMyNotifications);
 router.put('/:id/read', markAsRead);
 router.delete('/:id', deleteNotification);

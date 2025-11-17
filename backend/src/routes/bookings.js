@@ -4,6 +4,7 @@ import {
   getBookingDetails,
   getMyBookings,
   getOperatorBookings,
+  getAllBookings,
   cancelBooking,
   confirmBooking,
   checkinBooking
@@ -28,6 +29,9 @@ router.put('/:id/cancel', restrictTo('customer'), getBookingValidator, cancelBoo
 
 // Operator routes
 router.get('/operator-bookings', restrictTo('operator'), getOperatorBookings);
+
+// Admin routes - must come before /:id routes to avoid conflicts
+router.get('/', restrictTo('admin'), getAllBookings);
 
 // Shared routes (customer or operator can view)
 router.get('/:id', getBookingValidator, validate, getBookingDetails);

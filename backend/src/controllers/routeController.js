@@ -225,3 +225,25 @@ export const getPopularRoutes = asyncHandler(async (req, res) => {
 
   successResponse(res, { routes }, 'Popular routes retrieved successfully');
 });
+
+/**
+ * @desc    Get all public routes
+ * @route   GET /api/routes/public
+ * @access  Public
+ */
+export const getPublicRoutes = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 50 } = req.query;
+
+  const query = { isActive: true };
+
+  const total = await Route.countDocuments(query);
+
+  const routes = await Route.find(query)
+    .populate('operatorId', 'companyName averageRating')
+    .select('routeName routeCode origin destination distance estimatedDuration pickupPoints dropoffPoints')
+    .sort({ createdAt: -1 })
+    .limit(limit * 1)
+    .skip((page - 1) * limit);
+
+  paginatedResponse(res, routes, page, limit, total, 'Public routes retrieved successfully');
+});

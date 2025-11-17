@@ -133,3 +133,70 @@ export const deleteAllNotifications = asyncHandler(async (req, res) => {
 
   successResponse(res, null, 'All notifications deleted successfully');
 });
+
+/**
+ * @desc    Get user notification settings
+ * @route   GET /api/notifications/settings
+ * @access  Private
+ */
+export const getNotificationSettings = asyncHandler(async (req, res) => {
+  // Get user or operator model based on userType
+  let user;
+  if (req.userType === 'customer') {
+    const { User } = await import('../models/index.js');
+    user = await User.findById(req.user._id).select('notificationSettings');
+  } else if (req.userType === 'operator') {
+    const { BusOperator } = await import('../models/index.js');
+    user = await BusOperator.findById(req.user._id).select('notificationSettings');
+  }
+
+  const settings = user?.notificationSettings || {
+    email: true,
+    sms: false,
+    push: true,
+    bookingUpdates: true,
+    promotions: true,
+    newsletters: false
+  };
+
+  successResponse(res, { settings }, 'Notification settings retrieved');
+});
+
+/**
+ * @desc    Update user notification settings
+ * @route   PUT /api/notifications/settings
+ * @access  Private
+ */
+export const updateNotificationSettings = asyncHandler(async (req, res) => {
+  const { email, sms, push, bookingUpdates, promotions, newsletters } = req.body;
+
+  // Get user or operator model based on userType
+  let user;
+  if (req.userType === 'customer') {
+    const { User } = await import('../models/index.js');
+    user = await User.findById(req.user._id);
+  } else if (req.userType === 'operator') {
+    const { BusOperator } = await import('../models/index.js');
+    user = await BusOperator.findById(req.user._id);
+  }
+
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+
+  // Update notification settings
+  if (!user.notificationSettings) {
+    user.notificationSettings = {};
+  }
+
+  if (email !== undefined) user.notificationSettings.email = email;
+  if (sms !== undefined) user.notificationSettings.sms = sms;
+  if (push !== undefined) user.notificationSettings.push = push;
+  if (bookingUpdates !== undefined) user.notificationSettings.bookingUpdates = bookingUpdates;
+  if (promotions !== undefined) user.notificationSettings.promotions = promotions;
+  if (newsletters !== undefined) user.notificationSettings.newsletters = newsletters;
+
+  await user.save();
+
+  successResponse(res, { settings: user.notificationSettings }, 'Notification settings updated');
+});

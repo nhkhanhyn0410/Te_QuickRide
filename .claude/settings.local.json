@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(done)",
+      "Bash(cat:*)",
+      "Bash(node --version:*)",
+      "Bash(node check-sync.js:*)",
+      "Bash(npm run seed:*)",
+      "Bash(npm run check:*)",
+      "Bash(mongosh test:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

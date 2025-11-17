@@ -117,8 +117,8 @@ export const getTripDetails = asyncHandler(async (req, res) => {
     .populate('routeId')
     .populate('busId')
     .populate('operatorId', '-password')
-    .populate('driver', 'fullName phone')
-    .populate('tripManager', 'fullName phone');
+    .populate('driverId', 'fullName phone')
+    .populate('managerId', 'fullName phone');
 
   if (!trip) {
     throw new NotFoundError('Trip not found');
@@ -301,8 +301,8 @@ export const createTrip = asyncHandler(async (req, res) => {
     arrivalTime,
     basePrice,
     availableSeats: bus.totalSeats,
-    driver: driverId,
-    tripManager: tripManagerId,
+    driverId: driverId,
+    managerId: tripManagerId,
     status: 'scheduled'
   });
 
@@ -336,7 +336,7 @@ export const updateTrip = asyncHandler(async (req, res) => {
   }
 
   // Update allowed fields
-  const allowedUpdates = ['departureTime', 'arrivalTime', 'basePrice', 'status', 'driver', 'tripManager'];
+  const allowedUpdates = ['departureTime', 'arrivalTime', 'basePrice', 'status', 'driverId', 'managerId'];
   Object.keys(req.body).forEach(key => {
     if (allowedUpdates.includes(key)) {
       trip[key] = req.body[key];

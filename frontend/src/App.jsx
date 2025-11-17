@@ -9,7 +9,7 @@ import { Header, Footer, ProtectedRoute } from './components/common';
 import { Login, Register, OperatorRegister, ForgotPassword } from './pages/auth';
 
 // Public Pages
-import { About, Contact, Help, Blog, BlogDetail, Promotions } from './pages/public';
+import { About, Contact, Help, Blog, BlogDetail, Promotions, Routes as PublicRoutesPage } from './pages/public';
 
 // Customer Pages
 import {
@@ -423,6 +423,16 @@ function App() {
               element={
                 <Layout>
                   <Promotions />
+                </Layout>
+              }
+            />
+
+            {/* Routes Page */}
+            <Route
+              path="/routes"
+              element={
+                <Layout>
+                  <PublicRoutesPage />
                 </Layout>
               }
             />

@@ -517,33 +517,44 @@ const createBuses = async () => {
 const createTrips = async () => {
   console.log('🚌 Creating trips...');
 
-  const operator = sampleData.operators[0];
-  const route = sampleData.routes[0];
-  const bus = sampleData.buses[1]; // Use limousine bus with A1, A2, A3, B1, B2, B3 seats
+  const operators = sampleData.operators;
+  const routes = sampleData.routes;
+  const buses = sampleData.buses;
   const driver = sampleData.staff.find(s => s.role === 'driver');
   const manager = sampleData.staff.find(s => s.role === 'trip_manager');
 
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(8, 0, 0, 0);
+  const trips = [];
 
-  const trips = [
-    {
-      operatorId: operator._id,
-      routeId: route._id,
-      busId: bus._id,
-      driverId: driver._id,
-      managerId: manager._id,
-      tripCode: 'TRIP' + Date.now(),
-      departureTime: tomorrow,
-      arrivalTime: new Date(tomorrow.getTime() + 12 * 60 * 60 * 1000),
-      basePrice: 350000,
-      availableSeats: 24, // Limousine has 24 seats
-      occupiedSeats: [],
-      lockedSeats: [],
-      status: 'scheduled'
+  // Create trips for each route
+  routes.forEach((route, routeIndex) => {
+    const operator = operators[routeIndex % operators.length];
+    const bus = buses[routeIndex % buses.length];
+
+    // Create 3 trips per route on different days
+    for (let dayOffset = 1; dayOffset <= 3; dayOffset++) {
+      const departureDate = new Date();
+      departureDate.setDate(departureDate.getDate() + dayOffset);
+      departureDate.setHours(8 + (dayOffset - 1) * 4, 0, 0, 0); // Stagger departure times
+
+      const duration = route.estimatedDuration || 240; // Default 4 hours if not set
+
+      trips.push({
+        operatorId: operator._id,
+        routeId: route._id,
+        busId: bus._id,
+        driverId: driver._id,
+        managerId: manager._id,
+        tripCode: `TRIP-${route.routeCode}-${dayOffset}`,
+        departureTime: departureDate,
+        arrivalTime: new Date(departureDate.getTime() + duration * 60 * 1000),
+        basePrice: 150000 + routeIndex * 50000 + dayOffset * 20000,
+        availableSeats: bus.totalSeats - (dayOffset === 1 ? 5 : 0), // First day has some occupied seats
+        occupiedSeats: dayOffset === 1 ? ['A1', 'A2', 'B1', 'B2', 'C1'] : [],
+        lockedSeats: [],
+        status: 'scheduled'
+      });
     }
-  ];
+  });
 
   sampleData.trips = await Trip.insertMany(trips);
   console.log(`✅ Created ${sampleData.trips.length} trips`);

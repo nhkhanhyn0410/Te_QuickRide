@@ -196,3 +196,110 @@ export const getBuses = asyncHandler(async (req, res) => {
 
   paginatedResponse(res, buses, page, limit, total, 'Buses retrieved successfully');
 });
+
+/**
+ * @desc    Get bus types
+ * @route   GET /api/buses/types
+ * @access  Public
+ */
+export const getBusTypes = asyncHandler(async (req, res) => {
+  const busTypes = [
+    {
+      type: 'Ghế ngồi',
+      description: 'Xe khách ghế ngồi thông thường',
+      seatCapacity: '29-45 chỗ',
+      icon: 'chair'
+    },
+    {
+      type: 'Giường nằm',
+      description: 'Xe khách giường nằm cao cấp',
+      seatCapacity: '24-40 chỗ',
+      icon: 'bed'
+    },
+    {
+      type: 'Limousine',
+      description: 'Xe limousine sang trọng',
+      seatCapacity: '9-18 chỗ',
+      icon: 'luxury'
+    },
+    {
+      type: 'Ghế ngồi 2 tầng',
+      description: 'Xe khách 2 tầng ghế ngồi',
+      seatCapacity: '40-50 chỗ',
+      icon: 'double-decker'
+    },
+    {
+      type: 'Giường nằm 2 tầng',
+      description: 'Xe khách 2 tầng giường nằm',
+      seatCapacity: '34-46 chỗ',
+      icon: 'double-decker-bed'
+    }
+  ];
+
+  successResponse(res, { busTypes }, 'Bus types retrieved successfully');
+});
+
+/**
+ * @desc    Get bus availability for date range
+ * @route   GET /api/buses/:id/availability
+ * @access  Private (Operator)
+ */
+export const getBusAvailability = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { startDate, endDate } = req.query;
+
+  const bus = await Bus.findById(id);
+
+  if (!bus) {
+    throw new NotFoundError('Bus not found');
+  }
+
+  // Check if bus belongs to operator
+  if (req.userType === 'operator' && bus.operatorId.toString() !== req.user._id.toString()) {
+    throw new AuthorizationError('You can only check availability of your own buses');
+  }
+
+  // Import Trip model
+  const { Trip } = await import('../models/index.js');
+
+  // Find trips assigned to this bus in the date range
+  const query = {
+    busId: id,
+    status: { $in: ['scheduled', 'boarding', 'in_progress'] }
+  };
+
+  if (startDate || endDate) {
+    query.departureTime = {};
+    if (startDate) {
+      query.departureTime.$gte = new Date(startDate);
+    }
+    if (endDate) {
+      query.departureTime.$lte = new Date(endDate);
+    }
+  }
+
+  const scheduledTrips = await Trip.find(query)
+    .populate('routeId', 'routeName origin destination')
+    .sort({ departureTime: 1 });
+
+  const availability = {
+    bus: {
+      id: bus._id,
+      busNumber: bus.busNumber,
+      busType: bus.busType,
+      totalSeats: bus.totalSeats
+    },
+    scheduledTrips: scheduledTrips.map(trip => ({
+      tripId: trip._id,
+      tripCode: trip.tripCode,
+      route: trip.routeId,
+      departureTime: trip.departureTime,
+      arrivalTime: trip.arrivalTime,
+      status: trip.status
+    })),
+    totalScheduledTrips: scheduledTrips.length,
+    isAvailable: scheduledTrips.length === 0
+  };
+
+  successResponse(res, availability, 'Bus availability retrieved successfully');
+});

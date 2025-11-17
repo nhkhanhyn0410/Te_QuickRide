@@ -526,9 +526,9 @@ const sampleData = {
       operatorId: new mongoose.Types.ObjectId('650000000000000000000101'),
       routeId: new mongoose.Types.ObjectId('650000000000000000000301'),
       busId: new mongoose.Types.ObjectId('650000000000000000000201'),
-      tripCode: 'TRIP20250120001',
-      departureTime: new Date('2025-01-20T08:00:00Z'),
-      arrivalTime: new Date('2025-01-20T14:00:00Z'),
+      tripCode: 'TRIP-SGN-DL-001',
+      departureTime: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // Tomorrow
+      arrivalTime: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000 + 6 * 60 * 60 * 1000), // +6 hours
       basePrice: 250000,
       availableSeats: 18,
       occupiedSeats: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
@@ -544,8 +544,8 @@ const sampleData = {
           sessionId: 'session_abc123xyz'
         }
       ],
-      driver: null,
-      tripManager: null,
+      driverId: null,
+      managerId: null,
       status: 'scheduled',
       cancellationReason: null
     },
@@ -554,15 +554,15 @@ const sampleData = {
       operatorId: new mongoose.Types.ObjectId('650000000000000000000101'),
       routeId: new mongoose.Types.ObjectId('650000000000000000000301'),
       busId: new mongoose.Types.ObjectId('650000000000000000000201'),
-      tripCode: 'TRIP20250120002',
-      departureTime: new Date('2025-01-20T20:00:00Z'),
-      arrivalTime: new Date('2025-01-21T02:00:00Z'),
+      tripCode: 'TRIP-SGN-DL-002',
+      departureTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
+      arrivalTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 6 * 60 * 60 * 1000), // +6 hours
       basePrice: 280000,
       availableSeats: 24,
       occupiedSeats: [],
       lockedSeats: [],
-      driver: null,
-      tripManager: null,
+      driverId: null,
+      managerId: null,
       status: 'scheduled',
       cancellationReason: null
     },
@@ -571,16 +571,16 @@ const sampleData = {
       operatorId: new mongoose.Types.ObjectId('650000000000000000000101'),
       routeId: new mongoose.Types.ObjectId('650000000000000000000302'),
       busId: new mongoose.Types.ObjectId('650000000000000000000202'),
-      tripCode: 'TRIP20250118001',
-      departureTime: new Date('2025-01-18T06:00:00Z'),
-      arrivalTime: new Date('2025-01-18T14:00:00Z'),
+      tripCode: 'TRIP-SGN-NT-001',
+      departureTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
+      arrivalTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 8 * 60 * 60 * 1000), // +8 hours
       basePrice: 320000,
-      availableSeats: 0,
-      occupiedSeats: ['1A', '1B', '1C', '2A', '2B', '2C', '3A', '3B', '3C'],
+      availableSeats: 30,
+      occupiedSeats: [],
       lockedSeats: [],
-      driver: null,
-      tripManager: null,
-      status: 'completed',
+      driverId: null,
+      managerId: null,
+      status: 'scheduled',
       cancellationReason: null
     },
     {
@@ -588,17 +588,51 @@ const sampleData = {
       operatorId: new mongoose.Types.ObjectId('650000000000000000000102'),
       routeId: new mongoose.Types.ObjectId('650000000000000000000303'),
       busId: new mongoose.Types.ObjectId('650000000000000000000203'),
-      tripCode: 'TRIP20250119001',
-      departureTime: new Date('2025-01-19T10:00:00Z'),
-      arrivalTime: new Date('2025-01-19T12:30:00Z'),
+      tripCode: 'TRIP-HN-HP-001',
+      departureTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days from now at 10:00
+      arrivalTime: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000 + 2.5 * 60 * 60 * 1000), // +2.5 hours
       basePrice: 150000,
       availableSeats: 45,
       occupiedSeats: [],
       lockedSeats: [],
-      driver: null,
-      tripManager: null,
-      status: 'cancelled',
-      cancellationReason: 'Xe gặp sự cố kỹ thuật, hủy chuyến và hoàn tiền 100% cho khách hàng'
+      driverId: null,
+      managerId: null,
+      status: 'scheduled',
+      cancellationReason: null
+    },
+    {
+      _id: new mongoose.Types.ObjectId('650000000000000000000405'),
+      operatorId: new mongoose.Types.ObjectId('650000000000000000000102'),
+      routeId: new mongoose.Types.ObjectId('650000000000000000000303'),
+      busId: new mongoose.Types.ObjectId('650000000000000000000203'),
+      tripCode: 'TRIP-HN-HP-002',
+      departureTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now at 14:00
+      arrivalTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 2.5 * 60 * 60 * 1000),
+      basePrice: 150000,
+      availableSeats: 45,
+      occupiedSeats: [],
+      lockedSeats: [],
+      driverId: null,
+      managerId: null,
+      status: 'scheduled',
+      cancellationReason: null
+    },
+    {
+      _id: new mongoose.Types.ObjectId('650000000000000000000406'),
+      operatorId: new mongoose.Types.ObjectId('650000000000000000000102'),
+      routeId: new mongoose.Types.ObjectId('650000000000000000000303'),
+      busId: new mongoose.Types.ObjectId('650000000000000000000203'),
+      tripCode: 'TRIP-HN-HP-003',
+      departureTime: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), // 4 days from now
+      arrivalTime: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000 + 2.5 * 60 * 60 * 1000),
+      basePrice: 150000,
+      availableSeats: 45,
+      occupiedSeats: [],
+      lockedSeats: [],
+      driverId: null,
+      managerId: null,
+      status: 'scheduled',
+      cancellationReason: null
     }
   ],
 

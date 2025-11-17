@@ -371,3 +371,52 @@ export const checkinBooking = asyncHandler(async (req, res) => {
     checkedInSeats: booking.checkedInSeats
   }, 'Passengers checked in successfully');
 });
+
+/**
+ * @desc    Get all bookings (Admin)
+ * @route   GET /api/bookings
+ * @access  Private (Admin)
+ */
+export const getAllBookings = asyncHandler(async (req, res) => {
+  if (req.userType !== 'admin') {
+    throw new AuthorizationError('Only administrators can access this');
+  }
+
+  const { page = 1, limit = 20, status, tripId, customerId, operatorId } = req.query;
+
+  const query = {};
+
+  if (status) {
+    query.status = status;
+  }
+
+  if (tripId) {
+    query.tripId = tripId;
+  }
+
+  if (customerId) {
+    query.customerId = customerId;
+  }
+
+  if (operatorId) {
+    query.operatorId = operatorId;
+  }
+
+  const total = await Booking.countDocuments(query);
+
+  const bookings = await Booking.find(query)
+    .populate({
+      path: 'tripId',
+      populate: [
+        { path: 'routeId', select: 'routeName origin destination' },
+        { path: 'busId', select: 'busNumber busType' }
+      ]
+    })
+    .populate('customerId', 'fullName phone email')
+    .populate('operatorId', 'companyName email phone')
+    .sort({ createdAt: -1 })
+    .limit(limit * 1)
+    .skip((page - 1) * limit);
+
+  paginatedResponse(res, bookings, page, limit, total, 'All bookings retrieved');
+});

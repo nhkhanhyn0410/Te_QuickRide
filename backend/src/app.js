@@ -60,6 +60,8 @@ import staffRoutes from './routes/staff.js';
 import reviewRoutes from './routes/reviews.js';
 import voucherRoutes from './routes/vouchers.js';
 import notificationRoutes from './routes/notifications.js';
+import settingsRoutes from './routes/settings.js';
+import analyticsRoutes from './routes/analytics.js';
 
 // API routes
 app.get('/api', (req, res) => {
@@ -80,7 +82,9 @@ app.get('/api', (req, res) => {
       staff: '/api/staff',
       reviews: '/api/reviews',
       vouchers: '/api/vouchers',
-      notifications: '/api/notifications'
+      notifications: '/api/notifications',
+      settings: '/api/settings',
+      analytics: '/api/analytics'
     }
   });
 });
@@ -99,6 +103,8 @@ app.use('/api/staff', staffRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/vouchers', voucherRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // 404 handler
 app.use((req, res) => {

@@ -12,6 +12,7 @@ import Voucher from './Voucher.js';
 import LoyaltyPoint from './LoyaltyPoint.js';
 import Notification from './Notification.js';
 import SystemLog from './SystemLog.js';
+import Settings from './Settings.js';
 
 export {
   User,
@@ -27,5 +28,6 @@ export {
   Voucher,
   LoyaltyPoint,
   Notification,
-  SystemLog
+  SystemLog,
+  Settings
 };
