@@ -12,7 +12,7 @@ import {
 import { PassengerForm } from '../../components/customer';
 import { Loading, ErrorMessage } from '../../components/common';
 import bookingService from '../../services/bookingService';
-// import { setBookingData } from '../../redux/slices/bookingSlice';
+import { setBookingData } from '../../redux/slices/bookingSlice';
 import dayjs from 'dayjs';
 
 const Booking = () => {
@@ -73,7 +73,7 @@ const Booking = () => {
       }));
 
       const bookingData = {
-        tripId: selectedTrip._id,
+        tripId: selectedTrip._id || selectedTrip.id,
         seatNumbers: selectedSeats,
         passengers: passengersWithSeats,
         contactInfo: {
@@ -237,7 +237,7 @@ const Booking = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Giá vé:</span>
                   <span className="font-medium">
-                    {formatPrice(selectedTrip.baseFare)}
+                    {formatPrice(selectedTrip.basePrice || selectedTrip.baseFare || 0)}
                   </span>
                 </div>
               </div>
@@ -248,7 +248,7 @@ const Booking = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700 font-medium">Tổng tiền:</span>
                   <span className="text-2xl font-bold text-blue-600">
-                    {formatPrice(selectedSeats.length * selectedTrip.baseFare)}
+                    {formatPrice(selectedSeats.length * (selectedTrip.basePrice || selectedTrip.baseFare || 0))}
                   </span>
                 </div>
               </div>
