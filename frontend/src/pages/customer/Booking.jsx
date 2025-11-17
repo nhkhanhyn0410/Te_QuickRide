@@ -66,35 +66,62 @@ const Booking = () => {
       setLoading(true);
       setError(null);
 
-      // Map passengers to seats
-      const passengersWithSeats = passengers.map((passenger, index) => ({
-        ...passenger,
-        seatNumber: selectedSeats[index],
+      // Format data to match backend API
+      const seats = selectedSeats.map((seatNumber, index) => ({
+        seatNumber,
+        passenger: {
+          fullName: passengers[index]?.fullName || passengers[0]?.fullName,
+          phone: passengers[index]?.phoneNumber || passengers[0]?.phoneNumber,
+          idCard: passengers[index]?.idCard || '',
+        }
       }));
+
+      // Get pickup and dropoff points from trip
+      const pickupPoint = {
+        name: selectedTrip.route?.origin?.city || 'Điểm đón',
+        address: selectedTrip.route?.origin?.address || selectedTrip.route?.origin?.station || '',
+      };
+
+      const dropoffPoint = {
+        name: selectedTrip.route?.destination?.city || 'Điểm trả',
+        address: selectedTrip.route?.destination?.address || selectedTrip.route?.destination?.station || '',
+      };
 
       const bookingData = {
         tripId: selectedTrip._id || selectedTrip.id,
-        seatNumbers: selectedSeats,
-        passengers: passengersWithSeats,
-        contactInfo: {
-          fullName: passengers[0].fullName,
-          phoneNumber: passengers[0].phoneNumber,
-          email: passengers[0].email || user?.email,
-        },
+        seats,
+        pickupPoint,
+        dropoffPoint,
+        contactEmail: passengers[0].email || user?.email,
+        contactPhone: passengers[0].phoneNumber,
+        notes: '',
       };
+
+      console.log('Creating booking with data:', bookingData);
 
       const response = await bookingService.createBooking(bookingData);
 
+      console.log('Booking response:', response);
+
       if (response.success) {
-        dispatch(setBookingData(response.data.booking));
+        const bookingId = response.data.booking._id || response.data.booking.id || response.data._id || response.data.id;
+        dispatch(setBookingData(response.data.booking || response.data));
         message.success('Đặt vé thành công!');
-        navigate(`/payment/${response.data.booking._id}`);
+
+        if (bookingId) {
+          navigate(`/payment/${bookingId}`);
+        } else {
+          console.error('No booking ID found in response:', response);
+          message.error('Không tìm thấy ID booking!');
+        }
       } else {
         setError(response.message || 'Đặt vé thất bại!');
         message.error(response.message || 'Đặt vé thất bại!');
       }
     } catch (err) {
-      const errorMsg = err.response?.data?.message || 'Đã có lỗi xảy ra';
+      console.error('Booking error:', err);
+      console.error('Error response:', err.response);
+      const errorMsg = err.response?.data?.message || err.message || 'Đã có lỗi xảy ra';
       setError(errorMsg);
       message.error(errorMsg);
     } finally {
