@@ -128,7 +128,7 @@ const SeatMap = ({ trip, selectedSeats = [], onSeatSelect, maxSeats = 5 }) => {
         <div className="text-right">
           <div className="text-sm text-gray-600">Tổng tiền</div>
           <div className="text-xl font-bold text-blue-600">
-            {formatPrice(selectedSeats.length * (trip?.baseFare || 0))}
+            {formatPrice(selectedSeats.length * (trip?.basePrice || trip?.baseFare || 0))}
           </div>
         </div>
       }
