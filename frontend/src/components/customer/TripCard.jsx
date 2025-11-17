@@ -29,7 +29,7 @@ const TripCard = ({ trip }) => {
   };
 
   const handleSelectTrip = () => {
-    navigate(`/trips/${trip._id}`);
+    navigate(`/trips/${trip.id || trip._id}`);
   };
 
   return (
