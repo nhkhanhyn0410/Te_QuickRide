@@ -43,12 +43,23 @@ const Booking = () => {
   }, []);
 
   const handlePassengersChange = (newPassengers) => {
+    console.log('📝 Passengers updated:', newPassengers);
     setPassengers(newPassengers);
   };
 
+  // Debug: Log state on render
+  console.log('🔄 Booking render - passengers:', passengers.length, 'seats:', selectedSeats.length);
+
   const handleCreateBooking = async () => {
+    console.log('=== handleCreateBooking called ===');
+    console.log('passengers:', passengers);
+    console.log('selectedSeats:', selectedSeats);
+    console.log('passengers.length:', passengers.length);
+    console.log('selectedSeats.length:', selectedSeats.length);
+
     // Validate passengers
     if (passengers.length !== selectedSeats.length) {
+      console.log('❌ Validation failed: passengers length mismatch');
       message.error('Vui lòng nhập đầy đủ thông tin hành khách!');
       return;
     }
@@ -57,10 +68,14 @@ const Booking = () => {
     const hasInvalidPassenger = passengers.some(
       p => !p.fullName || !p.phoneNumber
     );
+    console.log('hasInvalidPassenger:', hasInvalidPassenger);
     if (hasInvalidPassenger) {
+      console.log('❌ Validation failed: missing required fields');
       message.error('Vui lòng điền đầy đủ họ tên và số điện thoại!');
       return;
     }
+
+    console.log('✅ Validation passed, creating booking...');
 
     try {
       setLoading(true);
@@ -284,12 +299,16 @@ const Booking = () => {
                 type="primary"
                 size="large"
                 block
-                onClick={handleCreateBooking}
+                onClick={() => {
+                  console.log('🔵 Button clicked!');
+                  console.log('Button disabled?', passengers.length !== selectedSeats.length);
+                  handleCreateBooking();
+                }}
                 loading={loading}
                 disabled={passengers.length !== selectedSeats.length}
                 className="bg-blue-600 hover:bg-blue-700 h-12 text-lg font-semibold"
               >
-                Tiếp tục thanh toán
+                Tiếp tục thanh toán {passengers.length !== selectedSeats.length && `(${passengers.length}/${selectedSeats.length})`}
               </Button>
 
               <div className="mt-4 text-xs text-gray-500 text-center">
