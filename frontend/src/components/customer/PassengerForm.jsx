@@ -21,29 +21,26 @@ const PassengerForm = ({ passengers, onPassengersChange, seatCount }) => {
     onPassengersChange(passengersList);
   };
 
-  const handleValuesChange = () => {
-    // Auto-save on change
-    form.validateFields()
-      .then((values) => {
-        const passengersList = [];
-        for (let i = 0; i < seatCount; i++) {
-          if (values[`fullName_${i}`]) {
-            passengersList.push({
-              fullName: values[`fullName_${i}`],
-              phoneNumber: values[`phoneNumber_${i}`],
-              email: values[`email_${i}`],
-              identityCard: values[`identityCard_${i}`],
-              seatNumber: values[`seatNumber_${i}`],
-            });
-          }
-        }
-        if (passengersList.length > 0) {
-          onPassengersChange(passengersList);
-        }
-      })
-      .catch(() => {
-        // Validation errors, don't update
-      });
+  const handleValuesChange = (changedValues, allValues) => {
+    // Auto-save on change - update immediately without full validation
+    const passengersList = [];
+    for (let i = 0; i < seatCount; i++) {
+      const fullName = allValues[`fullName_${i}`];
+      const phoneNumber = allValues[`phoneNumber_${i}`];
+
+      // Only add passenger if at least fullName or phoneNumber is filled
+      if (fullName || phoneNumber) {
+        passengersList.push({
+          fullName: fullName || '',
+          phoneNumber: phoneNumber || '',
+          email: allValues[`email_${i}`] || '',
+          identityCard: allValues[`identityCard_${i}`] || '',
+        });
+      }
+    }
+
+    // Always update, even if empty (parent will validate)
+    onPassengersChange(passengersList);
   };
 
   return (

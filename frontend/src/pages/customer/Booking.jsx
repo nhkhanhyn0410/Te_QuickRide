@@ -32,11 +32,11 @@ const Booking = () => {
       navigate('/');
     }
 
-    // Pre-fill first passenger with user info
-    if (user) {
+    // Pre-fill first passenger with user info (only if user has valid data)
+    if (user && user.fullName && user.phoneNumber) {
       setPassengers([{
-        fullName: user.fullName || '',
-        phoneNumber: user.phoneNumber || '',
+        fullName: user.fullName,
+        phoneNumber: user.phoneNumber,
         email: user.email || '',
       }]);
     }
